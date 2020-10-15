@@ -5,4 +5,8 @@ Web Application Development For Mirmir's Well Meadery
 
 ![Sprint Plan](/diagrams/SprintPlanning.png)
 
-Format: ![Alt Text](url)
+![Page Features](/diagrams/FeatureBreakDown.png)
+
+![Page Flow](/diagrams/PageFlow.png)
+
+[Models](/diagrams/Models.pdf)
