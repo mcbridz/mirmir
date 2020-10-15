@@ -1,0 +1,69 @@
+{%extends 'mirmir_app/base.html'%}
+{% load crispy_forms_tags %}
+{%block title%}Mirmir: Register{%endblock%}
+{%block style%}
+<style>
+    .invalid_password {
+        border: 1px solid red !important;
+    }
+</style>
+{%endblock%}
+{%block body%}
+<form id="form_input" action="#!" method="post">
+    <input type="hidden" id="recaptcha" name="g-recaptcha-response">
+    {% csrf_token %}
+    <label for="username" class="requiredField">Username <span class="asteriskField">*</span></label>
+    <div>
+        <input class="textinput textInput form-control" type="text" name="username" required maxlength="100">
+    </div>
+    <label for="password" class="requiredField">Password <span class="asteriskField">*</label>
+    <div>
+        <input class="form-control" type="password" oninput="password_check()" name="password" id="password" required>
+    </div>
+    <label for="password_v" class="requiredField">Re-Type Password <span class="asteriskField">*</label>
+    <div>
+        <input class="form-control" type="password" oninput="password_check()" name="password_v" id="password_v"
+            required>
+    </div>
+    {{ form|crispy }}
+    <button type="submit" id="submit_btn" class="btn btn-primary g-recaptcha" data-sitekey="reCAPTCHA_site_key"
+        data-callback='onSubmit'>Register!</button>
+</form>
+
+
+{%endblock%}
+{% block javascript %}
+<script src="https://www.google.com/recaptcha/api.js?render={{site_key}}"></script>
+<script>
+    function password_check() {
+        if ($('#password').val() != $('#password_v').val()) {
+            $('#submit_btn').addClass('disabled')
+            $('#password_v').addClass('invalid_password')
+            console.log('Passwords don\'t match.')
+        }
+        else {
+            $('#submit_btn').removeClass('disabled')
+            $('#password_v').removeClass('invalid_password')
+            console.log('Passwords match.')
+        }
+    }
+    // function onSubmit(token) {
+    //     document.getElementById("form").submit();
+    // }
+    grecaptcha.ready(function () {
+        // 4
+        $('#form_input').submit(function (e) {
+            let form = this;
+            // 5
+            e.preventDefault()
+            grecaptcha.execute('{{ site_key }}', { action: 'form' }).then(function (token) {
+                console.log(token)
+                // 6
+                $('#recaptcha').val(token)
+                // 7
+                form.submit()
+            });
+        })
+    });
+</script>
+{% endblock %}
