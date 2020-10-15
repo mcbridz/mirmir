@@ -1,4 +1,4 @@
-# mirmir
+# Mirmir's Well Meadery
 Web Application Development For Mirmir's Well Meadery
 
 ## Development Plan
