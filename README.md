@@ -1,6 +1,18 @@
 # Mirmir's Well Meadery
 Web Application Development For Mirmir's Well Meadery
 
+### Frameworks Used:
+
+Bootstrap
+
+Crispy Forms
+
+Bootstrap Forms
+
+Django
+
+Vue JS
+
 ### Models
 
 The following link will take you to a pdf describing the models utilized to generate a Django database.
