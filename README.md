@@ -2,10 +2,15 @@
 Web Application Development For Mirmir's Well Meadery
 
 Frameworks Used:
+
 Bootstrap
+
 Crispy Forms
+
 Bootstrap Forms
+
 Django
+
 Vue JS
 
 ### Models
