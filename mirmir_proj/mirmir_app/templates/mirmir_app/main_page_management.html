@@ -1,0 +1,89 @@
+{%extends 'mirmir_app/employee_base.html'%}
+{%block title%}Mirmir: Employee{%endblock%}
+{%block style%}
+
+{%endblock%}
+{%block body%}
+<h1>This is the Main Page Management Page</h1>
+<h3>Here will be a form group mapped to main page elements, including number of carouselle items and their descriptions,
+    and an emergency announcement option, followed by highlight frames</h3>
+<div class="container" id="app">
+    <h1>[[message]]</h1>
+    <ul class="nav nav-pills nav-fill justify-content-center">
+        <li class="nav-item">
+            <a id="a_carousele" :class="{ active: selected == 'a_carousele' }" @click="selected='a_carousele'"
+                class="nav-link" href="#">Carousele
+                Modification</a>
+        </li>
+        <li class="nav-item">
+            <a id="a_highlight" :class="{ active: selected =='a_highlight' }" @click="selected='a_highlight'"
+                class="nav-link" href="#">Page Highlight
+                Modification</a>
+        </li>
+        <li class="nav-item">
+            <a id="a_warning" :class="{ active: selected =='a_warning' }" @click="selected='a_warning'" class="nav-link"
+                href="#">Warning Display</a>
+        </li>
+    </ul>
+    <div id="carousele_data" v-show="selected == 'a_carousele'" v-for="slide in carousele_data">
+        <div>[[slide.caption_title]]</div>
+        <div>[[slide.image]]</div>
+        <div>[[slide.display_order]]</div>
+    </div>
+</div>
+
+{%endblock%}
+
+{% block javascript %}
+
+<script>
+    let app = new Vue({
+        el: '#app',
+        delimiters: ['[[', ']]'],
+        data: {
+            message: 'hello, world!',
+            selected: 'a_carousele',
+            carousele_data: [],
+            warning_data: {},
+            highlight_data: [],
+        },
+        methods: {
+            getCarousele: function () {
+                axios({
+                    url: '{% url "mirmir_app:get_carousele" %}',
+                    method: 'GET'
+                }).then(response => {
+                    console.log(response)
+                    this.carousele_data = response.data['slides']
+                })
+            },
+            getHighlights: function () {
+                axios({
+                    url: '{% url "mirmir_app:highlights" %}',
+                    method: 'GET'
+                }).then(response => {
+                    console.log(response)
+                    this.highlight_data = response.data['highlight_data']
+                })
+            },
+            getWarning: function () {
+                axios({
+                    url: '{% url "mirmir_app:get_warning" %}',
+                    method: 'GET'
+                }).then(response => {
+                    console.log(response)
+                    this.warning_data = response.data
+                })
+            }
+        },
+        created: function () {
+            this.getCarousele()
+            this.getHighlights()
+            this.getWarning()
+            this.$forceUpdate()
+        }
+    })
+</script>
+
+
+{% endblock %}

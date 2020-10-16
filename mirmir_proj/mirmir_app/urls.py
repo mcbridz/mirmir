@@ -1,5 +1,6 @@
 from django.urls import path
 from . import views
+from django.conf import settings
 
 app_name = 'mirmir_app'
 urlpatterns = [
@@ -11,4 +12,10 @@ urlpatterns = [
     path('login/', views.login, name='login'),
     path('register/', views.register, name='register'),
     path('logout/', views.logout, name='logout'),
+    path('employee_main/', views.employee_main, name='employee_main'),
+    path('main_page_management/', views.main_page_management,
+         name='main_page_management'),
+    path('highlights/', views.highlights, name='highlights'),
+    path('get_warning/', views.get_warning, name='get_warning'),
+    path('get_carousele/', views.get_carousele, name='get_carousele'),
 ]
