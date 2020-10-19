@@ -9,7 +9,6 @@ from django.contrib import auth
 from .models import StatusField, SortField, Contact, Product, CarouselSlide, MainPageWarning, MainPageHighlight
 import requests
 import random
-# from django.contrib.auth import login as login_user
 import django.contrib.auth
 from django.views.generic import CreateView
 from .forms import ContactForm
@@ -113,8 +112,12 @@ def save_highlight(request):
 @user_passes_test(employee_check)
 def save_warning(request):
     print(request)
-    print(request.POST)
-
+    print(request.body)
+    warning_data = json.loads(request.body)
+    warning = MainPageWarning.objects.get(id=1)
+    warning.text = warning_data['text']
+    warning.show_warning = warning_data['shown']
+    warning.save()
     return HttpResponse('exiting save_warning view')
 ####################################
 #         Customer Views           #
