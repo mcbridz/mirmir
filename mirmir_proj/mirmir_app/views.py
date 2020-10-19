@@ -13,6 +13,7 @@ import random
 import django.contrib.auth
 from django.views.generic import CreateView
 from .forms import ContactForm
+import json
 
 
 ####################################
@@ -46,6 +47,7 @@ def highlights(request):
         highlight_data.append({
             'image': highlight.image.url,
             'text': highlight.text,
+            'id': highlight.id,
         })
     return JsonResponse({'highlight_data': highlight_data})
 
@@ -53,7 +55,7 @@ def highlights(request):
 @user_passes_test(employee_check)
 def get_warning(request):
     warning = MainPageWarning.objects.get(id=1)
-    return JsonResponse({'warning': warning.text, 'shown': warning.show_warning})
+    return JsonResponse({'warning': warning.text, 'shown': warning.show_warning, 'id': 1})
 
 
 @user_passes_test(employee_check)
@@ -64,9 +66,56 @@ def get_carousele(request):
         slides_data.append({
             'image': slide.image.url,
             'caption_title': slide.caption_title,
+            'caption': slide.caption,
             'display_order': slide.display_order,
+            'id': slide.id,
         })
     return JsonResponse({'slides': slides_data})
+
+
+@user_passes_test(employee_check)
+def save_slide(request):
+    print(request.POST)
+    print(request.FILES)
+    slide_text_data = request.POST['slide_data']
+    print(slide_text_data)
+    slide_text_data = json.loads(slide_text_data)
+    tmp_id = slide_text_data['id']
+    print(tmp_id)
+    slide = CarouselSlide.objects.get(id=tmp_id)
+    slide.caption_title = slide_text_data['caption_title']
+    slide.caption = slide_text_data['caption']
+    slide.display_order = slide_text_data['display_order']
+    if request.FILES.get('image', False):
+        image = request.FILES['image']
+        slide.image = image
+    slide.save()
+
+    return HttpResponse('exiting save_slide view')
+
+
+@user_passes_test(employee_check)
+def save_highlight(request):
+    print(request.POST)
+    print(request.FILES)
+    highlight_text_data = json.loads(request.POST['highlight_data'])
+    tmp_id = highlight_text_data['id']
+    highlight = MainPageHighlight.objects.get(id=tmp_id)
+    highlight.text = highlight_text_data['text']
+    if request.FILES.get('image', False):
+        image = request.FILES['image']
+        highlight.image = image
+    highlight.save()
+
+    return HttpResponse('exiting save_slide view')
+
+
+@user_passes_test(employee_check)
+def save_warning(request):
+    print(request)
+    print(request.POST)
+
+    return HttpResponse('exiting save_warning view')
 ####################################
 #         Customer Views           #
 ####################################

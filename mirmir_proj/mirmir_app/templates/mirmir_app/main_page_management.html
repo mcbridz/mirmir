@@ -1,7 +1,21 @@
 {%extends 'mirmir_app/employee_base.html'%}
 {%block title%}Mirmir: Employee{%endblock%}
 {%block style%}
+<style>
+    img {
+        max-height: 100px;
+    }
 
+    .slide-group,
+    .highlight-group,
+    .warning-group {
+        border: 2px solid grey;
+        border-radius: 3px;
+        padding: 30px;
+        margin-top: 5px;
+        background-color: #78b9ff;
+    }
+</style>
 {%endblock%}
 {%block body%}
 <h1>This is the Main Page Management Page</h1>
@@ -9,6 +23,10 @@
     and an emergency announcement option, followed by highlight frames</h3>
 <div class="container" id="app">
     <h1>[[message]]</h1>
+
+
+
+    <!-- Tab Selection -->
     <ul class="nav nav-pills nav-fill justify-content-center">
         <li class="nav-item">
             <a id="a_carousele" :class="{ active: selected == 'a_carousele' }" @click="selected='a_carousele'"
@@ -25,10 +43,62 @@
                 href="#">Warning Display</a>
         </li>
     </ul>
-    <div id="carousele_data" v-show="selected == 'a_carousele'" v-for="slide in carousele_data">
-        <div>[[slide.caption_title]]</div>
-        <div>[[slide.image]]</div>
-        <div>[[slide.display_order]]</div>
+
+
+
+
+    <!-- Carousele Tab -->
+    <div class="form-group slide-group" id="carousele_data" v-show="selected == 'a_carousele'"
+        v-for="(slide, index) in carousele_data">
+        <form class="container" enctype="multipart/form-data">
+            <label :for="'slide_caption_title_' + slide.id">Caption Title</label>
+            <input type="text" maxlength="100" class="form-control" :name="'slide_caption_title_' + slide.id"
+                :id="'slide_caption_title_' + slide.id" v-model="slide.caption_title">
+            <label :for="'slide_caption_' + slide.id">Caption</label>
+            <input type="text" maxlength="100" class="form-control" :name="'slide_caption_' + slide.id"
+                :id="'slide_caption_' + slide.id" v-model="slide.caption">
+            <div>Currently Displayed Image: </div>
+            <img :src="slide.image">
+            <label :for="'slide_image_' + slide.id">Choose New Image</label>
+            <input type="file" :id="'slide_image_' + slide.id" :name="'slide_image_' + slide.id" accept="image/*">
+            <div>[[slide.image]]</div>
+            <label :for="'slide_display_order_' + slide.display_order">Display Order Number</label>
+            <input type="number" class="form-control" :name="'slide_display_order_' + slide.id"
+                :id="'slide_display_order_' + slide.display_order" v-model="slide.display_order">
+            <a class="btn btn-success" @click="saveSlide(index, slide.id)">Update</a>
+        </form>
+    </div>
+
+
+    <!-- Page Highlight Tab -->
+    <div class="form-group highlight-group" id="highlight_data" v-show="selected == 'a_highlight'"
+        v-for="(highlight, index) in highlight_data">
+        <form class="container" enctype="multipart/form-data">
+            <label for="'highlight_text_' + highlight.id">Highlight Text: </label>
+            <textarea class="form-control" :name="'highlight_text_' + highlight.id"
+                :id="'highlight_text' + highlight.id" v-model="highlight.text"></textarea>
+            <div>Currently Displayed Image: </div>
+            <img :src="highlight.image">
+            <input type="file" :id="'highlight_image_' + highlight.id" name="'highlight_image' + highlight.id"
+                accept="image/*">
+            <div>[[highlight.image]]</div>
+            <a class="btn btn-success" @click='saveHighlight(index, highlight.id)'>Update</a>
+        </form>
+    </div>
+
+
+    <!-- Warning Tab -->
+
+    <div class="form-group warning-group" id="warning_data" v-show="selected == 'a_warning'">
+        <form class="container">
+            <input type="text" class="form-control" maxlength="255" v-model="warning_data.warning"
+                :id="'warning_' + warning_data.id">
+            <input type="checkbox" class="form-check-input" v-model="warning_data.shown" id="shown">
+            <label class="form-check-label" for="shown">Display Warning On Main Page</label>
+            <div>
+                <a class="btn btn-success" @click='saveWarning()'>Update</a>
+            </div>
+        </form>
     </div>
 </div>
 
@@ -46,8 +116,72 @@
             carousele_data: [],
             warning_data: {},
             highlight_data: [],
+            tmp_data: {},
         },
         methods: {
+            saveWarning: function () {
+                console.log('Starting saveWarning')
+                console.log(this.warning_data)
+                axios({
+                    url: '{% url "mirmir_app:save_warning" %}',
+                    method: 'POST',
+                    data: {
+                        'text': this.warning_data.warning,
+                        'shown': this.warning_data.shown,
+                    },
+                    headers: {
+                        'X-CSRFToken': '{{ csrf_token }}'
+                    }
+                }).then(response => {
+                    console.log(response.data)
+
+                    console.log('Exiting saveWarning')
+                })
+            },
+            saveHighlight: function (pos, id) {
+                console.log('Starting saveHighlight...')
+                console.log(this.highlight_data[pos])
+                let image_data = new FormData()
+                let image_file = document.querySelector('#highlight_image_' + id)
+                image_data.append("image", image_file.files[0])
+                image_data.append("highlight_data", JSON.stringify(this.highlight_data[pos]))
+                axios({
+                    url: '{% url "mirmir_app:save_highlight" %}',
+                    method: 'POST',
+                    data: image_data,
+                    headers: {
+                        'X-CSRFToken': '{{ csrf_token }}',
+                    }
+                }).then(response => {
+                    console.log(response.data)
+                    this.getHighlights()
+                    console.log('Exiting saveHighlight')
+                })
+            },
+            saveSlide: function (pos, id) {
+                console.log('Starting saveSlide...')
+                console.log(this.carousele_data[pos])
+                let image_data = new FormData()
+                let image_file = document.querySelector('#slide_image_' + id)
+                image_data.append("image", image_file.files[0])
+                image_data.append("slide_data", JSON.stringify(this.carousele_data[pos]))
+                axios({
+                    url: '{% url "mirmir_app:save_slide" %}',
+                    method: 'POST',
+                    // data: {
+                    //     'slide': this.carousele_data[pos],
+                    //     'image_upload': image_data,
+                    // },
+                    data: image_data,
+                    headers: {
+                        'X-CSRFToken': '{{ csrf_token }}',
+                    }
+                }).then(response => {
+                    console.log(response.data)
+                    this.getCarousele()
+                    console.log('Exiting saveSlide')
+                })
+            },
             getCarousele: function () {
                 axios({
                     url: '{% url "mirmir_app:get_carousele" %}',

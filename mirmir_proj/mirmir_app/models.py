@@ -87,10 +87,11 @@ class Product(models.Model):
 
 
 class CarouselSlide(models.Model):
-    image = models.ImageField(upload_to='carousel_images')
+    image = models.ImageField(
+        upload_to='carousel_images', null=True, blank=True)
     caption_title = models.CharField(max_length=100, null=True, blank=True)
     caption = models.CharField(max_length=100, null=True, blank=True)
-    display_order = models.IntegerField()
+    display_order = models.IntegerField(null=True, blank=True)
 
     class Meta:
         ordering = ['display_order']
@@ -105,5 +106,10 @@ class MainPageWarning(models.Model):
 
 
 class MainPageHighlight(models.Model):
-    image = models.ImageField(upload_to='highlight_images')
-    text = models.TextField()
+    image = models.ImageField(
+        upload_to='highlight_images', null=True, blank=True)
+    text = models.TextField(null=True, blank=True)
+
+##############################################
+# Investigate abstracting Main Page Elements into a two element table of 'key': JSON to hold data
+##############################################

@@ -18,4 +18,7 @@ urlpatterns = [
     path('highlights/', views.highlights, name='highlights'),
     path('get_warning/', views.get_warning, name='get_warning'),
     path('get_carousele/', views.get_carousele, name='get_carousele'),
+    path('save_slide/', views.save_slide, name='save_slide'),
+    path('save_highlight/', views.save_highlight, name='save_highlight'),
+    path('save_warning/', views.save_warning, name='save_warning')
 ]
