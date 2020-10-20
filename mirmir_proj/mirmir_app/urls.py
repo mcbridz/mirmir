@@ -20,5 +20,8 @@ urlpatterns = [
     path('get_carousele/', views.get_carousele, name='get_carousele'),
     path('save_slide/', views.save_slide, name='save_slide'),
     path('save_highlight/', views.save_highlight, name='save_highlight'),
-    path('save_warning/', views.save_warning, name='save_warning')
+    path('save_warning/', views.save_warning, name='save_warning'),
+    path('add_new_slide/', views.add_new_slide, name='add_new_slide'),
+    path('execute_delete/', views.execute_delete, name='execute_delete'),
+    path('save_new_highlight', views.save_new_highlight, name='save_new_highlight'),
 ]

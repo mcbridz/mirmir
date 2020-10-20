@@ -19,6 +19,12 @@
     #page-label {
         text-align: center;
     }
+
+    #div_add_slide,
+    #div_add_highlight {
+        display: flex;
+        justify-content: flex-end;
+    }
 </style>
 {%endblock%}
 {%block body%}
@@ -69,9 +75,49 @@
             <input type="number" class="form-control" :name="'slide_display_order_' + slide.id"
                 :id="'slide_display_order_' + slide.display_order" v-model="slide.display_order">
             <a class="btn btn-success" @click="saveSlide(index, slide.id)">Update</a>
+            <a class="btn btn-danger" @click="deleteSlide(slide.id)">Delete</a>
         </form>
     </div>
 
+
+
+    <!-- Button trigger addSlideModal -->
+    <div id="div_add_slide" v-show="selected == 'a_carousele'">
+        <a type="button" class="btn btn-primary" data-toggle="modal" data-target="#addSlideModal"><i
+                class="fas fa-plus"></i>
+        </a>
+    </div>
+
+    <!-- addSlideModal -->
+    <div class="modal fade" id="addSlideModal" tabindex="-1" role="dialog" aria-labelledby="addSlideModalLabel"
+        aria-hidden="true">
+        <div class="modal-dialog" role="document">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="addSlideModalLabel">Add New Carousel Slide</h5>
+                    <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                        <span aria-hidden="true">&times;</span>
+                    </button>
+                </div>
+                <div class="modal-body">
+                    <form class="container" enctype="multipart/form-data">
+                        <label for="caption_title">Caption Title</label>
+                        <input type="text" maxlength="100" class="form-control" name="caption_title" id="caption_title"
+                            v-model="new_slide.caption_title">
+                        <label for="caption">Caption</label>
+                        <input type="text" maxlength="100" class="form-control" name="caption" id="caption"
+                            v-model="new_slide.caption">
+                        <label for="slide_image">Choose Image</label>
+                        <input type="file" id="slide_image" name="slide_image" accept="image/*">
+                    </form>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
+                    <button type="button" class="btn btn-primary" @click="addNewSlide()">Save New Slide</button>
+                </div>
+            </div>
+        </div>
+    </div>
 
     <!-- Page Highlight Tab -->
     <div class="form-group highlight-group" id="highlight_data" v-show="selected == 'a_highlight'"
@@ -86,9 +132,43 @@
                 accept="image/*">
             <div>[[highlight.image]]</div>
             <a class="btn btn-success" @click='saveHighlight(index, highlight.id)'>Update</a>
+            <a class="btn btn-danger" @click="deleteHighlight(highlight.id)">Delete</a>
         </form>
     </div>
 
+    <!-- New Highlight Modal Button -->
+    <div id="div_add_highlight" v-show="selected == 'a_highlight'">
+        <a type="button" class="btn btn-primary" data-toggle="modal" data-target="#newHighlightModal"><i
+                class="fas fa-plus"></i></a>
+    </div>
+
+    <!-- Highlight Modal -->
+    <div class="modal fade" id="newHighlightModal" tabindex="-1" role="dialog" aria-labelledby="newHighlightModalLabel"
+        aria-hidden="true">
+        <div class="modal-dialog" role="document">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="newHighlightModalLabel">New Highlight</h5>
+                    <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                        <span aria-hidden="true">&times;</span>
+                    </button>
+                </div>
+                <div class="modal-body">
+                    <form class="container" enctype="multipart/form-data">
+                        <label for="highlight_text">Highlight Text: </label>
+                        <textarea class="form-control" name="highlight_text" id="highlight_text"
+                            v-model="new_highlight.text"></textarea>
+                        <input type="file" id="highlight_image" name="highlight_image" accept="image/*">
+                    </form>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
+                    <button type="button" class="btn btn-primary" @click="saveNewHighlight()">Save New
+                        Highlight</button>
+                </div>
+            </div>
+        </div>
+    </div>
 
     <!-- Warning Tab -->
     <div class="form-group warning-group" id="warning_data" v-show="selected == 'a_warning'">
@@ -101,6 +181,30 @@
                 <a class="btn btn-success" @click='saveWarning()'>Update</a>
             </div>
         </form>
+    </div>
+
+    <!-- Confirm Delete Modal -->
+    <!-- Modal -->
+    <div class="modal fade" id="confirm_delete_modal" tabindex="-1" role="dialog"
+        aria-labelledby="confirm_delete_modalLabel" aria-hidden="true">
+        <div class="modal-dialog" role="document">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="confirm_delete_modalLabel">Confirm Delete</h5>
+                    <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                        <span aria-hidden="true">&times;</span>
+                    </button>
+                </div>
+                <div class="modal-body">
+                    Are You Sure?
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-dismiss="modal"
+                        @click="clearTmpData()">No</button>
+                    <button type="button" class="btn btn-danger" @click="executeDelete()">Yes</button>
+                </div>
+            </div>
+        </div>
     </div>
 </div>
 
@@ -120,8 +224,42 @@
             warning_data: {},
             highlight_data: [],
             tmp_data: {},
+            modal_display: '',
+            new_slide: {
+                caption: '',
+                caption_title: '',
+            },
+            new_highlight: {
+                text: '',
+            }
         },
         methods: {
+            clearTmpData: function () {
+                this.tmp_data = {}
+            },
+            executeDelete: function () {
+                console.log('Starting executeDelete')
+                console.log(this.tmp_data)
+                axios({
+                    url: '{% url "mirmir_app:execute_delete" %}',
+                    method: 'POST',
+                    data: this.tmp_data,
+                    headers: {
+                        'X-CSRFToken': '{{ csrf_token }}'
+                    }
+                }).then(response => {
+                    console.log(response.data)
+                    if (this.tmp_data['type'] == 'slide') {
+                        this.carousele_data = response.data['slides']
+                    } else {
+                        this.highlight_data = response.data['highlight_data']
+                    }
+                    this.clearTmpData()
+                    $('#confirm_delete_modal').modal('hide')
+                })
+
+                console.log('Leaving executeDelete')
+            },
             saveWarning: function () {
                 console.log('Starting saveWarning')
                 console.log(this.warning_data)
@@ -140,6 +278,18 @@
                     this.getWarning()
                     console.log('Exiting saveWarning')
                 })
+            },
+
+
+            /////////////////////////////////////
+            //        Highlight Methods        //
+            /////////////////////////////////////
+            deleteHighlight: function (id) {
+                this.tmp_data = {
+                    type: 'highlight',
+                    id: id,
+                }
+                $('#confirm_delete_modal').modal('show')
             },
             saveHighlight: function (pos, id) {
                 console.log('Starting saveHighlight...')
@@ -160,6 +310,52 @@
                     this.getHighlights()
                     console.log('Exiting saveHighlight')
                 })
+            },
+            getHighlights: function () {
+                axios({
+                    url: '{% url "mirmir_app:highlights" %}',
+                    method: 'GET'
+                }).then(response => {
+                    console.log(response)
+                    this.highlight_data = response.data['highlight_data']
+                })
+            },
+            saveNewHighlight: function () {
+                console.log('Starting saveNewHighlight ...')
+                let data = new FormData()
+                let image_file = document.querySelector('#highlight_image')
+                data.append("image", image_file.files[0])
+                data.append("text", this.new_highlight['text'])
+                console.log(data)
+                axios({
+                    url: '{% url "mirmir_app:save_new_highlight" %}',
+                    method: 'POST',
+                    data: data,
+                    headers: {
+                        'X-CSRFToken': '{{ csrf_token}}'
+                    }
+                }).then(response => {
+                    console.log(response.data)
+                    this.highlight_data = response.data['highlight_data']
+                    this.new_highlight['text'] = ''
+                    $('#newHighlightModal').modal('hide')
+                    console.log('Exiting saveNewHighlight')
+                })
+
+                console.log('Exiting saveNewHighlight')
+            },
+
+
+
+            //////////////////////////////////////
+            //        Carousel Methods          //
+            //////////////////////////////////////
+            deleteSlide: function (id) {
+                this.tmp_data = {
+                    type: 'slide',
+                    id: id,
+                }
+                $('#confirm_delete_modal').modal('show')
             },
             saveSlide: function (pos, id) {
                 console.log('Starting saveSlide...')
@@ -190,14 +386,36 @@
                     this.carousele_data = response.data['slides']
                 })
             },
-            getHighlights: function () {
+            addNewSlide: function () {
+                let data = new FormData()
+                let image_file = document.querySelector('#slide_image')
+                data.append("image", image_file.files[0])
+                console.log('Starting addNewSlide')
+                data.append("caption", this.new_slide.caption)
+                data.append("caption_title", this.new_slide.caption_title)
                 axios({
-                    url: '{% url "mirmir_app:highlights" %}',
-                    method: 'GET'
+                    url: '{% url "mirmir_app:add_new_slide" %}',
+                    method: 'POST',
+                    data: data,
+                    headers: {
+                        'X-CSRFToken': '{{ csrf_token }}',
+                    }
                 }).then(response => {
-                    console.log(response)
-                    this.highlight_data = response.data['highlight_data']
+                    console.log(response.data)
+                    this.new_slide.caption = ''
+                    this.new_slide.caption_title = ''
+                    $('#addSlideModal').modal('hide')
+                    this.getCarousele()
                 })
+                console.log('Exiting addNewSlide')
+            },
+            checkOrder: function (arr) {
+                for (i = 0; i < arr.len(); i++) {
+                    if ((i + 1) != arr[i].display_order) {
+                        return false
+                    }
+                }
+                return true
             },
             getWarning: function () {
                 axios({

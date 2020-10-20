@@ -18,6 +18,13 @@ import json
 ####################################
 #         Employee Views           #
 ####################################
+def justify_carousel_ordering():
+    slides = CarouselSlide.objects.all()
+    i = 1
+    for slide in slides:
+        slide.display_order = i
+        i += 1
+
 
 def employee_check(user):
     return user.profile.status.status == 'employee'
@@ -63,13 +70,36 @@ def get_carousele(request):
     slides_data = []
     for slide in slides:
         slides_data.append({
-            'image': slide.image.url,
+            'image': slide.image.url if slide.image.url else '',
             'caption_title': slide.caption_title,
             'caption': slide.caption,
             'display_order': slide.display_order,
             'id': slide.id,
         })
     return JsonResponse({'slides': slides_data})
+
+
+def get_next_order_number(group):
+    return group.count() + 1
+
+
+@user_passes_test(employee_check)
+def add_new_slide(request):
+    print(request.POST)
+    print(request.FILES)
+    slides = CarouselSlide.objects.all()
+    new_order_num = get_next_order_number(slides)
+    slide_data = request.POST
+    new_slide = CarouselSlide(
+        caption=slide_data['caption'],
+        caption_title=slide_data['caption_title'],
+        display_order=new_order_num,
+    )
+    if request.FILES.get('image', False):
+        image = request.FILES['image']
+        new_slide.image = image
+    new_slide.save()
+    return get_carousele(request)
 
 
 @user_passes_test(employee_check)
@@ -119,6 +149,33 @@ def save_warning(request):
     warning.show_warning = warning_data['shown']
     warning.save()
     return HttpResponse('exiting save_warning view')
+
+
+@user_passes_test(employee_check)
+def execute_delete(request):
+    data = json.loads(request.body)
+    print(data)
+    # if/else for slide or highlight, include JSON response of updated object list
+    if data['type'] == 'slide':
+        slide = CarouselSlide.objects.get(id=data['id'])
+        slide.delete()
+        return get_carousele(request)
+    else:
+        highlight = MainPageHighlight.objects.get(id=data['id'])
+        highlight.delete()
+        return highlights(request)
+    return HttpResponse('exiting execute_delete with no changes')
+
+
+@user_passes_test(employee_check)
+def save_new_highlight(request):
+    data = request.POST
+    print(data)
+    text = data['text']
+    new_highlight = MainPageHighlight(text=text, image=request.FILES['image'])
+    new_highlight.save()
+    return highlights(request)
+
 ####################################
 #         Customer Views           #
 ####################################
