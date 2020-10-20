@@ -319,3 +319,33 @@ def login(request):
             django.contrib.auth.login(request, user)
             next = request.GET.get('next', reverse('mirmir_app:main'))
             return HttpResponseRedirect(next)
+
+
+@login_required
+def profile(request):
+    if request.method == 'GET':
+        form = ContactForm(instance=request.user.profile)
+        context = {
+            'form': form,
+            'site_key': settings.RECAPTCHA_SITE_KEY,
+        }
+        return render(request, 'mirmir_app/profile.html', context)
+    else:
+        secret_key = settings.RECAPTCHA_SECRET_KEY
+        data = {
+            'response': request.POST['g-recaptcha-response'],
+            'secret': secret_key,
+        }
+        resp = requests.post(
+            'https://www.google.com/recaptcha/api/siteverify', data=data)
+        result_json = resp.json()
+        print(result_json)
+        ################################################
+        # need captcha logic
+        ################################################
+        # user login logic here
+        form = ContactForm(request.POST, request.FILES,
+                           instance=request.user.profile)
+        if form.is_valid():
+            form.save()
+        return HttpResponseRedirect(reverse('mirmir_app:main'))

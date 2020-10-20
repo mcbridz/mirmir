@@ -1,0 +1,36 @@
+{%extends 'mirmir_app/base.html'%}
+{% load crispy_forms_tags %}
+{%block title%}Profile{%endblock%}
+{%block style%}
+{%endblock%}
+{%block body%}
+<form class="container" id="form_input" action="#!" method="post">
+    <h1>Profile</h1>
+    <input type="hidden" id="recaptcha" name="g-recaptcha-response">
+    {% csrf_token %}
+    {{ form|crispy }}
+    <button type="submit" id="submit_btn" class="btn btn-primary g-recaptcha" data-sitekey="reCAPTCHA_site_key"
+        data-callback='onSubmit'>Update Profile</button>
+</form>
+
+{%endblock%}
+{%block javascript %}
+<script src="https://www.google.com/recaptcha/api.js?render={{site_key}}"></script>
+<script>
+    grecaptcha.ready(function () {
+        // 4
+        $('#form_input').submit(function (e) {
+            let form = this
+            // 5
+            e.preventDefault()
+            grecaptcha.execute('{{ site_key }}', { action: 'form' }).then(function (token) {
+                console.log(token)
+                // 6
+                $('#recaptcha').val(token)
+                // 7
+                form.submit()
+            })
+        })
+    })
+</script>
+{%endblock%}

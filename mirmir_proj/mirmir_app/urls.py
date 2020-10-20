@@ -23,5 +23,7 @@ urlpatterns = [
     path('save_warning/', views.save_warning, name='save_warning'),
     path('add_new_slide/', views.add_new_slide, name='add_new_slide'),
     path('execute_delete/', views.execute_delete, name='execute_delete'),
-    path('save_new_highlight', views.save_new_highlight, name='save_new_highlight'),
+    path('save_new_highlight/', views.save_new_highlight,
+         name='save_new_highlight'),
+    path('profile/', views.profile, name='profile'),
 ]

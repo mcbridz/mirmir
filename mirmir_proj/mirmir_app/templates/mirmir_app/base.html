@@ -188,7 +188,11 @@
             <div class="collapse navbar-collapse" id="acct_cart">
                 <span class="nav-item" id="customer">
                     <a href="" class="nav-link c-nav">Cart: __ Items</a>
-                    <a href="" class="nav-link c-nav">Your Account</a>
+                    {% if user.is_authenticated %}
+                    <a href="{% url 'mirmir_app:profile' %}" class="nav-link c-nav">Your Account</a>
+                    {% else %}
+                    <a href="" class="nav-link c-nav" disabled>Your Account</a>
+                    {% endif %}
                     {% if user.is_authenticated %}
                     <a class="btn nav-link" href="{% url 'mirmir_app:logout' %}" tabindex="-1" aria-disabled="true">Log
                         Out</a>

@@ -31,7 +31,7 @@ class Contact(models.Model):
         User, on_delete=models.CASCADE, related_name='profile')
     birthday = models.DateField()
     status = models.ForeignKey(
-        StatusField, on_delete=models.PROTECT, related_name='profile', null=True, blank=True)
+        StatusField, on_delete=models.PROTECT, related_name='profile', default=2)
 
     def __str__(self):
         return self.last_name + ', ' + self.first_name
