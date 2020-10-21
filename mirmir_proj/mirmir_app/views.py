@@ -12,6 +12,7 @@ import random
 import django.contrib.auth
 from django.views.generic import CreateView
 from .forms import ContactForm
+from . import utilities
 import json
 
 
@@ -349,3 +350,12 @@ def profile(request):
         if form.is_valid():
             form.save()
         return HttpResponseRedirect(reverse('mirmir_app:main'))
+
+
+def shop(request):
+    products = Product.objects.filter(is_display_on_website=True)
+    print(products)
+    context = {
+        'products': products
+    }
+    return render(request, 'mirmir_app/shop.html', context)

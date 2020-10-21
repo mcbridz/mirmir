@@ -175,13 +175,10 @@
                 </button>
                 <div class="collapse navbar-collapse" id="desk_nav">
                     <div class="navbar-nav mr-auto" id="sub_links">
-                        <a class="nav-link" href="#">Shop</a>
+                        <a class="nav-link" href="{% url 'mirmir_app:shop' %}">Shop</a>
                         <a class="nav-link" href="{% url 'mirmir_app:about' %}">About Mirmir's Well Meadery</a>
                         <a class="nav-link" href="{% url 'mirmir_app:club' %}">Mead Club</a>
                         <a class="nav-link" href="{% url 'mirmir_app:archive' %}">Archive</a>
-                        <a class="nav-item" id="a_login">
-                            <a class="nav-link" href="{% url 'mirmir_app:login' %}">Login</a>
-                        </a>
                     </div>
                 </div>
             </div>
@@ -189,9 +186,8 @@
                 <span class="nav-item" id="customer">
                     <a href="" class="nav-link c-nav">Cart: __ Items</a>
                     {% if user.is_authenticated %}
+                    <a disabled class="nav-link c-nav">Welcome, {{user.username}}</a>
                     <a href="{% url 'mirmir_app:profile' %}" class="nav-link c-nav">Your Account</a>
-                    {% else %}
-                    <a href="" class="nav-link c-nav" disabled>Your Account</a>
                     {% endif %}
                     {% if user.is_authenticated %}
                     <a class="btn nav-link" href="{% url 'mirmir_app:logout' %}" tabindex="-1" aria-disabled="true">Log

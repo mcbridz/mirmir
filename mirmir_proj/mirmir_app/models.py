@@ -2,6 +2,9 @@ from django.db import models
 from django.contrib.auth.models import User
 
 
+###############################################
+#             Contact Models                  #
+###############################################
 class StatusField(models.Model):
     status = models.CharField(max_length=50)
     pretty_status = models.CharField(max_length=50, null=True, blank=True)
@@ -35,6 +38,10 @@ class Contact(models.Model):
 
     def __str__(self):
         return self.last_name + ', ' + self.first_name
+
+###############################################
+#               Product Models                #
+###############################################
 
 
 class Product(models.Model):
@@ -86,6 +93,20 @@ class Product(models.Model):
         return self.title
 
 
+class ProductPhoto(models.Model):
+    photo = models.ImageField(upload_to='product_images')
+    photo_image_number = models.IntegerField()
+    product = models.ForeignKey(
+        Product, on_delete=models.PROTECT, related_name='product_photos')
+
+    def __str__(self):
+        return str(self.product) + ' photo# ' + str(self.photo_image_number)
+
+###################################################################
+#                          Page Models                            #
+###################################################################
+
+
 class CarouselSlide(models.Model):
     image = models.ImageField(
         upload_to='carousel_images', null=True, blank=True)
@@ -113,3 +134,107 @@ class MainPageHighlight(models.Model):
 ##############################################
 # Investigate abstracting Main Page Elements into a two element table of 'key': JSON to hold data
 ##############################################
+
+
+##################################################################
+#                         Order Models                           #
+##################################################################
+class ShippingStatus(models.Model):
+    status = models.CharField(max_length=50)
+    pretty_status = models.CharField(max_length=50)
+
+    def __str__(self):
+        return self.pretty_status
+
+
+class OrderType(models.Model):
+    type_string = models.CharField(max_length=50)
+    pretty_type = models.CharField(max_length=50)
+
+    def __str__(self):
+        return self.pretty_type
+
+
+class TransactionType(models.Model):
+    t_type = models.CharField(max_length=50)
+    pretty_t_type = models.CharField(max_length=50)
+
+    def __str__(self):
+        return self.pretty_t_type
+
+
+class PaymentStatus(models.Model):
+    status = models.CharField(max_length=50)
+    pretty_status = models.CharField(max_length=50)
+
+    def __str__(self):
+        return self.pretty_status
+
+
+class Order(models.Model):
+    contact = models.ForeignKey(
+        Contact, on_delete=models.PROTECT, related_name='orders')
+    order_type = models.ForeignKey(
+        OrderType, on_delete=models.PROTECT, related_name='orders')
+    order_number = models.IntegerField()
+    order_date = models.DateField(auto_now_add=True)
+    shipping_status = models.ForeignKey(
+        ShippingStatus, on_delete=models.PROTECT, related_name='orders')
+    ################################################
+    #            billing=source(meadery)           #
+    ################################################
+    # employee birthday
+    billing_birthdate = models.DateField()
+    billing_first_name = models.CharField(max_length=50)
+    billing_last_name = models.CharField(max_length=50)
+    billing_company = models.CharField(
+        max_length=100, default='Mirmir\'s Well Meadery')
+    billing_address = models.CharField(max_length=100)
+    billing_address2 = models.CharField(max_length=100, blank=True)
+    billing_city = models.CharField(max_length=50)
+    billing_state_code = models.CharField(max_length=4)
+    billing_zip_code = models.IntegerField()
+    billing_email = models.EmailField(
+        max_length=100, default='mirmirswellmeadery@gmail.com')
+    ################################################
+    #       shipping=destination(customer)         #
+    ################################################
+    # customer birthday
+    shipping_birthdate = models.DateField()
+    shipping_first_name = models.CharField(max_length=50)
+    shipping_last_name = models.CharField(max_length=50)
+    shipping_company = models.CharField(max_length=100)
+    shipping_address = models.CharField(max_length=100)
+    shipping_address2 = models.CharField(max_length=100, blank=True)
+    shipping_city = models.CharField(max_length=50)
+    shipping_state_code = models.CharField(max_length=4)
+    shipping_zip_code = models.IntegerField()
+    gift_message = models.CharField(max_length=1024, blank=True)
+    sub_total = models.FloatField(default=0.0)
+    order_notes = models.CharField(max_length=1024, blank=True)
+    handling = models.FloatField(default=0.0)
+    shipping = models.FloatField(default=0.0)
+    tax = models.FloatField(default=0.0)
+    total = models.FloatField(default=0.0)
+    previous_order_number = models.IntegerField(blank=True)
+    transaction_type = models.ForeignKey(
+        TransactionType, on_delete=models.PROTECT, related_name='orders')
+    is_pickup = models.BooleanField(default=False)
+    is_paid = models.BooleanField(default=False)
+    shipping_service = models.CharField(max_length=100, blank=True)
+    shipping_tracking_number = models.CharField(max_length=200, blank=True)
+    payment_status = models.ForeignKey(
+        PaymentStatus, on_delete=models.PROTECT, related_name='orders')
+    shipping_status = models.ForeignKey(
+        ShippingStatus, on_delete=models.PROTECT, related_name='orders')
+
+
+class OrderItemQuantity(models.Model):
+    quantity = models.IntegerField()
+    product = models.ForeignKey(
+        Product, on_delete=models.PROTECT, related_name='order_items')
+    order = models.ForeignKey(
+        Order, on_delete=models.CASCADE, related_name='items', blank=True)
+
+    def __str__(self):
+        return str(self.product) + ': ' + str(self.quantity)

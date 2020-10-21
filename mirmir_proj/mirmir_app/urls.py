@@ -26,4 +26,5 @@ urlpatterns = [
     path('save_new_highlight/', views.save_new_highlight,
          name='save_new_highlight'),
     path('profile/', views.profile, name='profile'),
+    path('shop/', views.shop, name='shop'),
 ]
