@@ -351,6 +351,10 @@ def profile(request):
             form.save()
         return HttpResponseRedirect(reverse('mirmir_app:main'))
 
+##########################################################
+#                       shop views                       #
+##########################################################
+
 
 def shop(request):
     products = Product.objects.filter(is_display_on_website=True)
@@ -359,3 +363,31 @@ def shop(request):
         'products': products
     }
     return render(request, 'mirmir_app/shop.html', context)
+
+
+def shop_get_product_data(request):
+    products = Product.objects.filter(is_display_on_website=True)
+    data = []
+    for product in products:
+        photos = []
+        for photo in product.product_photos.all():
+            photos.append({
+                'display_order': photo.photo_image_number,
+                'photo': photo.photo.url
+            })
+        data.append({
+            'id': product.id,
+            'title': product.title,
+            'description': product.description,
+            'teaser': product.description_teaser,
+            'date_added': product.date_added,
+            'cost': product.SKU_cost_of_good,
+            'photos': photos,
+            'wine_properties': {
+                'size': product.WineProperties_bottle_size_in_ml,
+                'alcohol': product.WineProperties_alcohol,
+                'pairing': product.WineProperties_food_pairing_notes,
+                'tasting': product.WineProperties_tasting_notes
+            }
+        })
+    return JsonResponse({'product_data': data})

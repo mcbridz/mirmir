@@ -55,7 +55,7 @@ class Product(models.Model):
     is_display_on_website = models.BooleanField(default=True)
     description = models.TextField()
     description_teaser = models.CharField(
-        max_length=255, blank=True, null=True)
+        max_length=255, blank=True)
     # wine_properties
     date_added = models.DateField(auto_now_add=True)
     date_modified = models.DateField(blank=True, null=True)

@@ -27,6 +27,11 @@
 
     <title>{%block title%}{%endblock%}</title>
     <style>
+        html,
+        body {
+            height: 100%;
+        }
+
         .social_media {
             width: 30px;
         }
@@ -34,6 +39,8 @@
         #nav_bottom {
             display: flex;
             justify-content: center;
+            /* bottom: 0; */
+            width: 100%;
         }
 
         #nav_bottom>span {
@@ -61,7 +68,7 @@
             color: black;
         }
 
-        .sidenav {
+        #mobile_nav {
             height: 100%;
             /* 100% Full-height */
             width: 0;
@@ -84,7 +91,7 @@
         }
 
         /* The navigation menu links */
-        .sidenav a {
+        #mobile_nav a {
             padding: 8px 8px 8px 32px;
             text-decoration: none;
             font-size: 25px;
@@ -94,12 +101,12 @@
         }
 
         /* When you mouse over the navigation links, change their color */
-        .sidenav a:hover {
+        #mobile_nav a:hover {
             color: #f1f1f1;
         }
 
         /* Position and style the close button (top right corner) */
-        .sidenav .closebtn {
+        #mobile_nav .closebtn {
             position: absolute;
             top: 0;
             right: 25px;
@@ -115,11 +122,11 @@
 
         /* On smaller screens, where height is less than 450px, change the style of the sidenav (less padding and a smaller font size) */
         @media screen and (max-height: 450px) {
-            .sidenav {
+            #mobile_nav {
                 padding-top: 15px;
             }
 
-            .sidenav a {
+            #mobile_nav a {
                 font-size: 18px;
             }
         }
@@ -156,7 +163,7 @@
     {%endblock%}
 </head>
 
-<body>
+<body class="d-flex flex-column min-vh-100">
     <nav class="navbar navbar-expand-lg navbar-light bg-light">
         <div id="nav_container" class="container">
             <div class="row">
@@ -224,7 +231,7 @@
     </nav>
     {%block body%}
     {%endblock%}
-    <nav id="nav_bottom" class="navbar sticky-bottom navbar-light bg-light">
+    <nav id="nav_bottom" class="navbar navbar-light bg-light mt-auto">
         <span class="nav-item">
             <a href="#!"><img class="social_media" src="{% static 'mirmir_app/facebook.png' %}" alt=""></a>
         </span>
@@ -252,9 +259,9 @@
         }
 
         // tooltip jQuery
-        $('#desktop_username').ready(function () {
-            $('[data-toggle="tooltip"]').tooltip()
-        })
+        // $('#desktop_username').ready(function () {
+        $('#desktop_username').tooltip()
+        // })
     </script>
     {%block javascript%}
     {%endblock%}
