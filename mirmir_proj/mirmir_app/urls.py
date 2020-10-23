@@ -28,5 +28,6 @@ urlpatterns = [
     path('profile/', views.profile, name='profile'),
     path('shop/', views.shop, name='shop'),
     path('shop_get_product_data/', views.shop_get_product_data,
-         name='shop_get_product_data')
+         name='shop_get_product_data'),
+    path('checkout/', views.checkout, name='checkout'),
 ]

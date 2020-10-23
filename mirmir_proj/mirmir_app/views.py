@@ -391,3 +391,10 @@ def shop_get_product_data(request):
             }
         })
     return JsonResponse({'product_data': data})
+
+
+def checkout(request):
+    context = {
+        'site_key': settings.RECAPTCHA_SITE_KEY,
+    }
+    return render(request, 'mirmir_app/checkout.html', context)

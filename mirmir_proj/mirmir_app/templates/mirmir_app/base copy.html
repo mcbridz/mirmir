@@ -102,9 +102,47 @@
             /* 0.5 second transition effect to slide in the sidenav */
         }
 
-        .add-or-remove-group {
+        #shopping_cart {
+            height: 100%;
+            /* 100% Full-height */
+            width: 0;
+            /* 0 width - change this with JavaScript */
+            position: fixed;
+            /* Stay in place */
+            z-index: 3;
+            /* Stay on top */
+            top: 0;
+            /* Stay at the top */
+            right: 0;
+            background-color: #111;
+            /* Black*/
+            overflow-x: hidden;
+            /* Disable horizontal scroll */
+            padding-top: 60px;
+            /* Place content 60px from the top */
+            transition: 0.5s;
+            /* 0.5 second transition effect to slide in the sidenav */
+        }
+
+        #cart_app {
+            height: 100%;
             display: flex;
-            flex-direction: row;
+            flex-direction: column;
+            justify-content: space-between;
+        }
+
+        .cart-text {
+            color: #f1f1f1;
+        }
+
+        #checkout-group {
+            display: flex;
+            align-items: center;
+            flex-direction: column;
+        }
+
+        #total {
+            text-align: center;
         }
 
         /* The navigation menu links */
@@ -138,76 +176,6 @@
 
         #btn_checkout:hover {
             color: black;
-        }
-
-
-
-        #shopping_cart {
-            height: 100%;
-            /* 100% Full-height */
-            width: 0;
-            /* 0 width - change this with JavaScript */
-            position: fixed;
-            /* Stay in place */
-            z-index: 3;
-            /* Stay on top */
-            top: 0;
-            /* Stay at the top */
-            right: 0;
-            background-color: #111;
-            /* Black*/
-            overflow-x: hidden;
-            /* Disable horizontal scroll */
-            padding-top: 60px;
-            /* Place content 60px from the top */
-            transition: 0.5s;
-            /* 0.5 second transition effect to slide in the sidenav */
-        }
-
-        #cart_app {
-            height: 90%;
-            display: flex;
-            flex-direction: column;
-            justify-content: space-between;
-        }
-
-        .cart-text {
-            color: #f1f1f1;
-        }
-
-        #checkout-group {
-            display: flex;
-            align-items: center;
-            flex-direction: column;
-        }
-
-        #total {
-            text-align: center;
-        }
-
-        .cart-group {
-            display: flex;
-            flex-direction: column;
-            width: 90%;
-            align-items: center;
-        }
-
-        .cart-items {
-            display: flex;
-            flex-direction: row;
-            justify-content: space-between;
-        }
-
-        .add-or-remove-group>input {
-            width: 40px;
-        }
-
-        .add-or-remove-group>a {
-            padding: 0 5px;
-        }
-
-        #cart_close {
-            margin-bottom: 20px;
         }
 
         /* Style page content - use this if you want to push the page content to the right when you open the side navigation */
@@ -329,25 +297,18 @@
 
     <!-- shopping cart -->
     <div id="shopping_cart" class="sidenav">
-        <div id="cart_close">
-            <a href="javascript:void(0)" class="closebtn" onclick="closeCart()">&times;</a>
-        </div>
+        <a href="javascript:void(0)" class="closebtn" onclick="closeCart()">&times;</a>
         <div id="cart_app">
             <div class="container" v-show="cart.length == 0"><span class="cart-text">No Items In Cart</span></div>
+            <div class="container cart-items-group">
+                <div class="container" v-show="cart.length" v-for="item in cart">
+                    <span class="cart-text">[% item.title %]</span>
 
-            <div class="cart-group" v-show="cart.length">
-                <div class="container cart-items" v-for="(item, index) in cart">
-                    <span class="cart-text">[% item.title %] ($[%item.cost%])</span>
-                    <div class="add-or-remove-group">
-                        <input type="number" v-model="item.num" @input="calculateTotal()">
-                        <a class="btn btn-danger" @click=removeItemFromCart(index)><i class="fas fa-times"></i></a>
-                    </div>
                 </div>
             </div>
-
             <div class="container" id="checkout-group">
                 <span id="total" class="cart-text">Total: $[%total%]</span>
-                <a href="{% url 'mirmir_app:checkout' %}" class="btn btn-primary" id="btn_checkout">Checkout</a>
+                <a class="btn btn-primary" id="btn_checkout">Checkout</a>
             </div>
         </div>
     </div>
@@ -377,41 +338,35 @@
                 message: 'Hello, world!',
                 cart: [],
                 product_ids_in_cart: [],
-                total: 0,
             },
             methods: {
-                calculateTotal: function () {
-                    console.log('calculating total')
-                    let total = 0
-                    for (i = 0; i < this.cart.length; ++i) {
-                        total += (this.cart[i].num * this.cart[i].cost)
-                    }
-                    this.total = total
-                    sessionStorage.setItem('cart', JSON.stringify(this.cart))
-                },
-                removeItemFromCart: function (i) {
-                    console.log('removing item from cart with index of ' + i)
-                    this.cart.splice(i, 1)
-                    this.calculateTotal()
-                    console.log('exiting removeItemFromCart on session_cart vue')
-                },
                 addToCart: function (item) {
                     console.log('started addToCart from session_cart vue')
                     for (i = 0; i < this.cart.length; ++i) {
                         if (this.cart[i].id == item.id) {
                             console.log('item found in cart, adding 1 to num')
                             this.cart[i].num += 1
-                            this.calculateTotal()
-                            console.log(this.cart)
                             return
                         }
                     }
                     console.log('item not found in cart, making num key with value of 1 and pushing to cart')
                     item.num = 1
                     this.cart.push(item)
-                    this.calculateTotal()
                     console.log(this.cart)
                 },
+            },
+            computed: {
+                total: function () {
+                    let tmp_cart = this.cart
+                    output_total = 0
+                    for (i = 0; i < tmp_cart.length; ++i) {
+                        output_total += tmp_cart[i].cost
+                    }
+                    sessionStorage.setItem('cart', JSON.stringify(tmp_cart))
+                    this.cart = tmp_cart
+                    console.log('Computed function ran')
+                    return output_total
+                }
             },
             created: function () {
                 let cart_data = JSON.parse(sessionStorage.getItem('cart'))
@@ -436,7 +391,7 @@
         }
 
         function openCart() {
-            document.getElementById("shopping_cart").style.width = "350px"
+            document.getElementById("shopping_cart").style.width = "250px"
         }
 
         function closeCart() {
