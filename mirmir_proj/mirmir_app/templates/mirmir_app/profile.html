@@ -11,6 +11,17 @@
     {{ form|crispy }}
     <button type="submit" id="submit_btn" class="btn btn-primary g-recaptcha" data-sitekey="reCAPTCHA_site_key"
         data-callback='onSubmit'>Update Profile</button>
+    <h2>Order History</h2>
+    <div class="container">
+        <div class="table">
+            <thead>
+                <th scope="col">#</th>
+                <th scope="col">Date</th>
+                <th scope="col">Address</th>
+                <th scope="col">Num Items</th>
+            </thead>
+        </div>
+    </div>
 </form>
 
 {%endblock%}

@@ -6,7 +6,6 @@
 
     <!-- Vue -->
     <script src="https://cdn.jsdelivr.net/npm/vue/dist/vue.js"></script>
-
     <!-- Axios -->
     <script src="https://cdnjs.cloudflare.com/ajax/libs/axios/0.20.0/axios.min.js"
         integrity="sha512-quHCp3WbBNkwLfYUMd+KwBAgpVukJu5MncuQaWXgCrfgcxCJAq/fo+oqrRKOj+UKEmyMCG3tb8RB63W+EmrOBg=="
@@ -35,14 +34,6 @@
         crossorigin="anonymous"></script>
 
 
-    <!-- bootstrap-datepicker https://cdnjs.com/libraries/bootstrap-datepicker -->
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-datepicker/1.9.0/js/bootstrap-datepicker.min.js"
-        integrity="sha512-T/tUfKSV1bihCnd+MxKD0Hm1uBBroVYBOYSk1knyvQ9VyZJpc/ALb4P0r6ubwVPSGB2GvjeoMAJJImBG12TiaQ=="
-        crossorigin="anonymous"></script>
-    <link rel="stylesheet"
-        href="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-datepicker/1.9.0/css/bootstrap-datepicker.min.css"
-        integrity="sha512-mSYUmp1HYZDFaVKK//63EcZq4iFWFjxSL+Z3T/aCt4IO9Cejm03q3NKKYN6pFQzY0SBOr8h+eCIAZHPXcpZaNw=="
-        crossorigin="anonymous" />
     <script src="https://www.google.com/recaptcha/api.js?render={{site_key}}"></script>
 
     <!-- font awesome -->
@@ -182,9 +173,6 @@
             justify-content: space-between;
         }
 
-        .cart-text {
-            color: #f1f1f1;
-        }
 
         #checkout-group {
             display: flex;
@@ -204,6 +192,12 @@
             align-items: center;
         }
 
+        .cart-items {
+            display: flex;
+            flex-direction: row;
+            justify-content: space-between;
+        }
+
         .add-or-remove-group>input {
             width: 40px;
         }
@@ -218,7 +212,7 @@
 
         #bottom_buttons {
             display: flex;
-            justify-content: flex-end;
+            justify-content: space-between;
         }
 
         /* Style page content - use this if you want to push the page content to the right when you open the side navigation */
@@ -335,138 +329,36 @@
         </div>
     </nav>
 
-    <div id="shipping_form" class="container">
+    <div id="cart" class="container">
+        <h2>Validate Order Items:</h2>
+        <div class="container" v-show="cart.length == 0"><span class="cart-text">No Items In Cart</span></div>
 
-        <input type="hidden" id="recaptcha" name="g-recaptcha-response">
-        <h2>Billing Information:</h2>
-        <h5>Note: All Sales Are Pick-Up Until Further Notice</h5>
-        <div class="form-group">
-            <label for="first_name">First Name</label>
-            <input type="text" @input="checkFilledForm" name="first_name" class="form-control" maxlength="50"
-                v-model="order.billing.first_name" required>
-        </div>
-        <div class="form-group">
-            <label for="first_name">Last Name</label>
-            <input type="text" @input="checkFilledForm" name="last_name" class="form-control" maxlength="50"
-                v-model="order.billing.last_name" required>
-        </div>
-        <div class="form-group">
-            <label for="birthday">Birthday</label>
-            <div class="input-group date" data-provide="datepicker" data-target-input="nearest">
-                <input type="text" @input="checkFilledForm" v-model="order.billing.birthday" name="birthday"
-                    class="form-control" placeholder="MM/DD/YYYY" required>
-                <div class="input-group-append" data-target="#birthday" data-toggle="datepicker">
-                    <div class="input-group-text"><i class="fa fa-calendar"></i></div>
+        <div class="cart-group" v-show="cart.length">
+            <div class="container cart-items" v-for="(item, index) in cart">
+                <span class="cart-text">[[ item.title ]] ($[[item.cost]])</span>
+                <div class="add-or-remove-group">
+                    <input type="number" v-model="item.num" @input="calculateTotal()">
+                    <a class="btn btn-danger" @click=removeItemFromCart(index)><i class="fas fa-times"></i></a>
                 </div>
             </div>
         </div>
-        <div class="form-group">
-            <label for="company">Company</label>
-            <input type="text" @input="saveFormData" name="company" class="form-control" maxlength="50"
-                v-model="order.billing.company">
-        </div>
-        <div class="form-group">
-            <label for="address">Address Line 1</label>
-            <input type="text" @input="checkFilledForm" name="address" class="form-control" maxlength="50"
-                v-model="order.billing.address" required>
-        </div>
-        <div class="form-group">
-            <label for="address2">Address Line 2</label>
-            <input type="text" @input="saveFormData" name="address2" class="form-control" maxlength="50"
-                v-model="order.billing.address2">
-        </div>
-        <div class="form-group">
-            <label for="city">City</label>
-            <input type="text" @input="checkFilledForm" name="city" class="form-control" maxlength="50"
-                v-model="order.billing.city" required>
-        </div>
-        <div class="form-group">
-            <label for="state">State</label>
-            <input type="text" @input="checkFilledForm" name="state" class="form-control" maxlength="50"
-                v-model="order.billing.state" required>
-        </div>
-        <div class="form-group">
-            <label for="zip_code">Zip Code</label>
-            <input type="text" @input="checkFilledForm" name="zip_code" class="form-control" maxlength="50"
-                v-model="order.billing.zip_code" required>
-        </div>
-        <div class="form-group">
-            <label for="email">Email Address</label>
-            <input type="email" @input="checkFilledForm" name="email" class="form-control" maxlength="50"
-                v-model="order.billing.email" required>
-        </div>
-        <div class="form-check">
-            <input type="checkbox" class="form-check-input" v-model="order.is_gift" id="input_gift">
-            <label for="input_gift" class="form-check-label">Is Your Shipping Address Different Than Your Billing
-                Address?</label>
-        </div>
-        <h2 v-show="order.is_gift">Shipping Information</h2>
-        <div v-show="order.is_gift">
-            <div class="form-group">
-                <label for="first_name">First Name</label>
-                <input type="text" @input="checkFilledForm" name="first_name" class="form-control" maxlength="50"
-                    v-model="order.shipping.first_name">
-            </div>
-            <div class="form-group">
-                <label for="first_name">Last Name</label>
-                <input type="text" @input="checkFilledForm" name="last_name" class="form-control" maxlength="50"
-                    v-model="order.shipping.last_name">
-            </div>
-            <div class="form-group">
-                <label for="s_birthday">Birthday</label>
-                <div class="input-group date" data-provide="datepicker" data-target-input="nearest">
-                    <input type="text" @input="checkFilledForm" v-model="order.shipping.birthday" name="s_birthday"
-                        class="form-control" placeholder="MM/DD/YYYY">
-                    <div class="input-group-append" data-target="#s_birthday" data-toggle="datepicker">
-                        <div class="input-group-text"><i class="fa fa-calendar"></i></div>
-                    </div>
-                </div>
-            </div>
-            <div class="form-group">
-                <label for="company">Company</label>
-                <input type="text" @input="saveFormData" name="company" class="form-control" maxlength="50"
-                    v-model="order.shipping.company">
-            </div>
-            <div class="form-group">
-                <label for="address">Address Line 1</label>
-                <input type="text" @input="checkFilledForm" name="address" class="form-control" maxlength="50"
-                    v-model="order.shipping.address">
-            </div>
-            <div class="form-group">
-                <label for="address2">Address Line 2</label>
-                <input type="text" @input="saveFormData" name="address2" class="form-control" maxlength="50"
-                    v-model="order.shipping.address2">
-            </div>
-            <div class="form-group">
-                <label for="city">City</label>
-                <input type="text" @input="checkFilledForm" name="city" class="form-control" maxlength="50"
-                    v-model="order.shipping.city">
-            </div>
-            <div class="form-group">
-                <label for="state">State</label>
-                <input type="text" @input="checkFilledForm" name="state" class="form-control" maxlength="50"
-                    v-model="order.shipping.state">
-            </div>
-            <div class="form-group">
-                <label for="zip_code">Zip Code</label>
-                <input type="text" @input="checkFilledForm" name="zip_code" class="form-control" maxlength="50"
-                    v-model="order.shipping.zip_code">
-            </div>
-            <div class="form-group">
-                <label for="gift_message">Gift Message</label>
-                <input type="text" @input="saveFormData" name="gift_message" class="form-control" maxlength="50"
-                    v-model="order.gift_message">
-            </div>
+        <div class="container">
+            Additional implementation is required here based on direction of company: to link to wine-direct will
+            require additional functionality in management views to update wine-direct's database on any changes in this
+            server, or, if in best interest of the situation, re-configure all views to maintain wine-direct database as
+            the sole database for sales. Disadvantage here is the complete loss of capability if services are
+            interrupted. I intend to make a setting to send the user to PayPal for charging in the future, with a
+            settings.py configuration for whether or not wine-direct is active. For now, the simulation is that the
+            employees will manage orders through their employee site, including whatever methods the business wishes to
+            implement for billing, and all orders will be on-site pickup initially.
         </div>
         <div id="bottom_buttons">
-            <button onclick="window.location.href='{% url 'mirmir_app:cart_verification' %}';" class="btn btn-primary"
-                v-bind:disabled="!filled_form">Go
-                To: Confirm Cart
-                Items</button>
+            <button onclick="window.location.href='{% url 'mirmir_app:checkout' %}';" class="btn btn-primary">Back To:
+                Shipping Form</button>
+            <button @click="submitOrder" class="btn btn-primary" v-bind:disabled="cart.length == 0">Confirm Order
+                ($[[total]])</button>
         </div>
     </div>
-
-
     <nav id="nav_bottom" class="navbar navbar-light bg-light mt-auto">
         <span class="nav-item">
             <a href="#!"><img class="social_media" src="{% static 'mirmir_app/facebook.png' %}" alt=""></a>
@@ -482,16 +374,10 @@
         </span>
     </nav>
     <script>
-        $(function () {
-            $('.datepicker').datepicker({
-                format: 'yyyy-mm-dd',
-            })
-        })
-        let checkout = new Vue({
-            el: '#shipping_form',
+        let cart = new Vue({
+            el: '#cart',
             delimiters: ['[[', ']]'],
             data: {
-                message: 'Hello world!',
                 order: {
                     billing: {
                         first_name: '',
@@ -502,8 +388,6 @@
                         city: '',
                         state: '',
                         zip_code: '',
-                        birthday: '',
-                        email: '',
                     },
                     shipping: {
                         first_name: '',
@@ -514,37 +398,45 @@
                         city: '',
                         state: '',
                         zip_code: '',
-                        birthday: '',
                     },
                     gift_message: '',
                 },
                 cart: [],
-                filled_form: false,
-                is_gift: false,
+                total: 0,
             },
             methods: {
-                saveFormData: function () {
-                    console.log(this.order)
-                    sessionStorage.setItem('form_data', JSON.stringify(this.order))
-                },
-                checkFilledForm: function () {
-                    // console.log(this.order)
-                    let cats = [this.order.billing.first_name, this.order.billing.last_name, this.order.billing.address, this.order.billing.city, this.order.billing.state, this.order.billing.zip_code]
-                    // console.log(cats)
-                    let truth = true
-                    for (i = 0; i < cats.length; ++i) {
-                        console.log(cats[i])
-                        if (cats[i] == '') {
-                            truth = false
-                        }
+                calculateTotal: function () {
+                    console.log('calculating total')
+                    let total = 0
+                    for (i = 0; i < this.cart.length; ++i) {
+                        total += (this.cart[i].num * this.cart[i].cost)
                     }
-                    // console.log('checkFilledForm is returning ' + truth)
-                    this.saveFormData()
-                    this.filled_form = truth
-                }
-            },
-            calculated: function () {
-
+                    this.total = total
+                    sessionStorage.setItem('cart', JSON.stringify(this.cart))
+                },
+                submitOrder: function () {
+                    console.log(JSON.stringify(this.data))
+                    axios({
+                        url: '{% url "mirmir_app:upsert_order" %}',
+                        method: 'POST',
+                        data: {
+                            order: this.order,
+                            cart: this.cart,
+                            total: this.total,
+                        },
+                        headers: {
+                            'X-CSRFToken': '{{ csrf_token}}'
+                        }
+                    }).then((response) => {
+                        console.log(response.data)
+                    })
+                },
+                removeItemFromCart: function (i) {
+                    console.log('removing item from cart with index of ' + i)
+                    this.cart.splice(i, 1)
+                    this.calculateTotal()
+                    console.log('exiting removeItemFromCart on session_cart vue')
+                },
             },
             created: function () {
                 let cart_data = JSON.parse(sessionStorage.getItem('cart'))
@@ -562,7 +454,7 @@
                 } else {
                     this.order = order_data
                 }
-                this.checkFilledForm()
+                this.calculateTotal()
             }
         })
     </script>

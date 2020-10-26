@@ -6,7 +6,7 @@ from django.utils import timezone
 from django.conf import settings
 from django.contrib.auth.models import User
 from django.contrib import auth
-from .models import StatusField, SortField, Contact, Product, CarouselSlide, MainPageWarning, MainPageHighlight
+from .models import StatusField, SortField, Contact, Product, CarouselSlide, MainPageWarning, MainPageHighlight, Order, OrderType, PaymentStatus, OrderItemQuantity, ShippingStatus, TransactionType
 import requests
 import random
 import django.contrib.auth
@@ -14,6 +14,7 @@ from django.views.generic import CreateView
 from .forms import ContactForm
 from . import utilities
 import json
+import re
 
 
 ####################################
@@ -326,9 +327,19 @@ def login(request):
 def profile(request):
     if request.method == 'GET':
         form = ContactForm(instance=request.user.profile)
+        orders = request.user.profile.orders.all()
+        num_items = []
+        if orders:
+            for order in orders:
+                item_quantities = order.items.all()
+                total = 0
+                for tup in item_quantities:
+                    total += tup.quantity
+                num_items.append(total)
         context = {
             'form': form,
             'site_key': settings.RECAPTCHA_SITE_KEY,
+            'orders': orders,
         }
         return render(request, 'mirmir_app/profile.html', context)
     else:
@@ -398,3 +409,85 @@ def checkout(request):
         'site_key': settings.RECAPTCHA_SITE_KEY,
     }
     return render(request, 'mirmir_app/checkout.html', context)
+
+
+def cart_verification(request):
+    context = {
+        'site_key': settings.RECAPTCHA_SITE_KEY,
+    }
+    return render(request, 'mirmir_app/cart_verification.html', context)
+
+
+def upsert_order(request):
+    data = json.loads(request.body)
+    # print(data)
+    # big make for Order
+    billing = data['order']['billing']
+    shipping = data['order']['shipping']
+    # print(billing)
+    birthday = billing['birthday']
+    birthday = re.split('/', birthday)
+    final_birthday = birthday[2] + '-' + birthday[0] + '-' + birthday[1]
+    # print(final_birthday)
+    ###########################################
+    #          get Contact logic here         #
+    ###########################################
+    order_number = Order.objects.count() + 1
+    order = Order(
+        order_type=OrderType.objects.get(type_string="website"),
+        order_number=order_number,
+        shipping_status=ShippingStatus.objects.get(status="no_status"),
+        billing_birthdate=final_birthday,
+        billing_first_name=billing['first_name'],
+        billing_last_name=billing['last_name'],
+        billing_company=billing['company'],
+        billing_address=billing['address'],
+        billing_address2=billing['address2'],
+        billing_city=billing['city'],
+        billing_state_code=billing['state'],
+        billing_zip_code=int(billing['zip_code']),
+        billing_email=billing['email'],
+        sub_total=data['total'],
+        is_pickup=True,
+        payment_status=PaymentStatus.objects.get(status='pending'),
+        shipping_birthdate=final_birthday,
+        shipping_first_name=billing['first_name'],
+        shipping_last_name=billing['last_name'],
+        shipping_company=billing['company'],
+        shipping_address=billing['address'],
+        shipping_address2=billing['address2'],
+        shipping_city=billing['city'],
+        shipping_state_code=billing['state'],
+        shipping_zip_code=int(billing['zip_code']),
+        transaction_type=TransactionType.objects.get(t_type='order'),
+        previous_order_number=0,
+    )
+    if data['order']['is_gift']:
+        birthday = shipping['birthday']
+        birthday = re.split('/', birthday)
+        final_birthday = birthday[2] + '-' + birthday[0] + '-' + birthday[1]
+        order.shipping_first_name = shipping['first_name']
+        order.shipping_last_name = shipping['last_name']
+        order.shipping_company = shipping['company']
+        order.shipping_address = shipping['address']
+        order.shipping_address2 = shipping['address2']
+        order.shipping_city = shipping['city']
+        order.shipping_state_code = shipping['state']
+        order.shipping_zip_code = int(shipping['zip_code'])
+        order.shipping_birthdate = final_birthday
+        order.gift_message = data['order']['gift_message']
+    if request.user.is_authenticated:
+        contact = request.user.profile
+        order.contact = contact
+    order.save()
+    # make OrderItemQuantity's for each product
+    cart = data['cart']
+    print('Items in cart:')
+    for item in cart:
+        print(item['title'])
+        product = Product.objects.get(id=item['id'])
+        quantity = item['num']
+        new_item_quantity = OrderItemQuantity(
+            quantity=quantity, product=product, order=order)
+        new_item_quantity.save()
+    return HttpResponse('Ok')

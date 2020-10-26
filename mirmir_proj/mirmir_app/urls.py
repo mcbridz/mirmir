@@ -30,4 +30,6 @@ urlpatterns = [
     path('shop_get_product_data/', views.shop_get_product_data,
          name='shop_get_product_data'),
     path('checkout/', views.checkout, name='checkout'),
+    path('cart_verification/', views.cart_verification, name='cart_verification'),
+    path('upsert_order/', views.upsert_order, name='upsert_order'),
 ]

@@ -173,7 +173,7 @@ class PaymentStatus(models.Model):
 
 class Order(models.Model):
     contact = models.ForeignKey(
-        Contact, on_delete=models.PROTECT, related_name='orders')
+        Contact, on_delete=models.PROTECT, related_name='orders', null=True)
     order_type = models.ForeignKey(
         OrderType, on_delete=models.PROTECT, related_name='orders')
     order_number = models.IntegerField()
@@ -181,7 +181,7 @@ class Order(models.Model):
     shipping_status = models.ForeignKey(
         ShippingStatus, on_delete=models.PROTECT, related_name='orders')
     ################################################
-    #            billing=source(meadery)           #
+    #            billing=source(customer)           #
     ################################################
     # employee birthday
     billing_birthdate = models.DateField()
@@ -197,18 +197,17 @@ class Order(models.Model):
     billing_email = models.EmailField(
         max_length=100, default='mirmirswellmeadery@gmail.com')
     ################################################
-    #       shipping=destination(customer)         #
+    #       shipping=destination(customer/gift_recipient)         #
     ################################################
-    # customer birthday
-    shipping_birthdate = models.DateField()
-    shipping_first_name = models.CharField(max_length=50)
-    shipping_last_name = models.CharField(max_length=50)
-    shipping_company = models.CharField(max_length=100)
-    shipping_address = models.CharField(max_length=100)
+    shipping_birthdate = models.DateField(blank=True)
+    shipping_first_name = models.CharField(max_length=50, blank=True)
+    shipping_last_name = models.CharField(max_length=50, blank=True)
+    shipping_company = models.CharField(max_length=100, blank=True)
+    shipping_address = models.CharField(max_length=100, blank=True)
     shipping_address2 = models.CharField(max_length=100, blank=True)
-    shipping_city = models.CharField(max_length=50)
-    shipping_state_code = models.CharField(max_length=4)
-    shipping_zip_code = models.IntegerField()
+    shipping_city = models.CharField(max_length=50, blank=True)
+    shipping_state_code = models.CharField(max_length=4, blank=True)
+    shipping_zip_code = models.IntegerField(blank=True)
     gift_message = models.CharField(max_length=1024, blank=True)
     sub_total = models.FloatField(default=0.0)
     order_notes = models.CharField(max_length=1024, blank=True)
@@ -227,6 +226,9 @@ class Order(models.Model):
         PaymentStatus, on_delete=models.PROTECT, related_name='orders')
     shipping_status = models.ForeignKey(
         ShippingStatus, on_delete=models.PROTECT, related_name='orders')
+
+    def __str__(self):
+        return self.transaction_type.pretty_t_type + str(self.order_number)
 
 
 class OrderItemQuantity(models.Model):
