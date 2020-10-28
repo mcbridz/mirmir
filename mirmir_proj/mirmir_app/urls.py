@@ -34,5 +34,11 @@ urlpatterns = [
     path('upsert_order/', views.upsert_order, name='upsert_order'),
     path('order_details/<int:order_num>/',
          views.order_details, name="order_details"),
-    path('get_open_orders/', views.get_open_orders, name='get_open_orders')
+    path('get_open_orders/', views.get_open_orders, name='get_open_orders'),
+    path('save_order_changes/', views.save_order_changes,
+         name='save_order_changes'),
+    path('get_next_order_number_employee/', views.get_next_order_number_employee,
+         name='get_next_order_number_employee'),
+    path('get_active_products/', views.get_active_products,
+         name='get_active_products'),
 ]

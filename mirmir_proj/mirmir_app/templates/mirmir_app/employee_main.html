@@ -5,168 +5,83 @@
     a>i:hover {
         cursor: pointer;
     }
+
+    #orders_button_div>a {
+        display: flex;
+        justify-content: flex-end;
+    }
 </style>
 {%endblock%}
 {%block body%}
 <h1>This is the Employee Main Page</h1>
 <h3>Here will be a list of open orders, followed by a list of active products</h3>
 <div class="container" id="app">
-    <table class="table">
-        <thead>
-            <tr>
-                <th scope="col">#</th>
-                <th scope="col">Date Of Order</th>
-                <th scope="col">Last Name</th>
-                <th scope="col">Total</th>
-                <th scope="col"></th>
-            </tr>
-        </thead>
-        <tbody>
-            <tr v-for="(order, index) in open_orders">
-                <td>[[order.order_number]]</td>
-                <td>[[order.order_date]]</td>
-                <td>[[order.billing_last_name]]</td>
-                <td>$[[order.total]]</td>
-                <td><a @click="loadModal(index)" data-toggle="modal" data-target="#modal"><i
-                            class="fas fa-ellipsis-h"></i></a></td>
-            </tr>
-        </tbody>
-    </table>
-    <div class="modal fade" id="modal" tabindex="-1" role="dialog" aria-labelledby="modalLabel" aria-hidden="true">
+
+    <!-- Tab Management -->
+    <ul class="nav nav-pills nav-fill justify-content-center">
+        <li class="nav-item">
+            <a id="open_orders" :class="{ active: selected == 'open_orders' }" @click="selected='open_orders'"
+                class="nav-link" href="#">Open Orders</a>
+        </li>
+        <li class="nav-item">
+            <a id="active_products" :class="{ active: selected =='active_products' }"
+                @click="selected='active_products'" class="nav-link" href="#">Active Products</a>
+        </li>
+        <li class="nav-item">
+            <a id="send_emails" :class="{ active: selected =='send_emails' }" @click="selected='send_emails'"
+                class="nav-link" href="#">Send Emails</a>
+        </li>
+    </ul>
+
+    <!-- Inherit Order Tab Here -->
+    {% include 'mirmir_app/orders_tab.html' %}
+
+
+    <!-- Active Products Tab -->
+    <div v-show="selected == 'active_products'">
+        <table class="table">
+            <thead>
+                <tr>
+                    <th scope="col">#</th>
+                    <th scope="col">Title</th>
+                    <th scope="col">Inventory</th>
+                    <th scope="col">Alcohol</th>
+                    <th scope="col">Bottled Date</th>
+                    <th scope="col"></th>
+                </tr>
+            </thead>
+            <tbody>
+                <tr v-for="(product, index) in active_products_in_tab">
+                    <td>[[index]]</td>
+                    <td>[[product.title]]</td>
+                    <td>[[product.SKU_Prices_Inventory_current_inventory]]</td>
+                    <td>[[product.WineProperties_alcohol]]</td>
+                    <td>[[product.WineProperties_bottling_date]]</td>
+                    <td><a @click="loadProductModal(index)" data-toggle="modal" data-target="#product_modal"><i
+                                class="fas fa-edit"></i></a></td>
+                </tr>
+            </tbody>
+        </table>
+    </div>
+
+    <!-- Active Product Modal -->
+    <div class="modal fade" id="product_modal" tabindex="-1" role="dialog" aria-labelledby="modalLabel"
+        aria-hidden="true">
         <div class="modal-dialog" role="document">
             <div class="modal-content">
                 <div class="modal-header">
-                    <h5 class="modal-title" id="modalLabel">Order</h5>
+                    <h5 class="modal-title" id="modalLabel">Product</h5>
                     <button type="button" class="close" data-dismiss="modal" aria-label="Close">
                         <span aria-hidden="true">&times;</span>
                     </button>
                 </div>
                 <div class="modal-body">
-                    <form>
-                        <div class="form-group">
-                            <label for="contact">Contact</label>
-                            <input type="text" class="form-control" id="contact" v-model="order_modal_data.contact"
-                                disabled>
-                        </div>
-                        <div class="form-group">
-                            <label for="order_number">Order Number</label>
-                            <input type="number" class="form-control" id="order_number"
-                                v-model="order_modal_data.order_number" disabled>
-                        </div>
-                        <div class="input-group mb-3">
-                            <div class="input-group-prepend">
-                                <label class="input-group-text" for="order_type">Order Type</label>
-                            </div>
-                            <select v-model="order_modal_data.order_type" name="order_type" id="order_type"
-                                class="custom-select">
-                                <option value=1>Admin Panel</option>
-                                <option value=2>Club Order</option>
-                                <option value=3>Facebook</option>
-                                <option value=4>iPad</option>
-                                <option value=5>Mobile</option>
-                                <option value=6>POS</option>
-                                <option value=7>Telemarketing</option>
-                                <option value=8>Website</option>
-                            </select>
-                        </div>
-                        <div class="form-group">
-                            <label for="order_date">Order Date</label>
-                            <input type="text" class="form-control" id="order_date"
-                                v-model="order_modal_data.order_date" disabled>
-                        </div>
-                        <h5>Billing Info</h5>
-                        <div class="form-group">
-                            <label for="first_name">First Name</label>
-                            <input type="text" class="form-control" id="first_name"
-                                v-model="order_modal_data.billing_first_name">
-                        </div>
-                        <div class="form-group">
-                            <label for="last_name">Last Name</label>
-                            <input type="text" class="form-control" id="last_name"
-                                v-model="order_modal_data.billing_last_name">
-                        </div>
 
-                        <div class="form-group">
-                            <label for="billing_company">Company</label>
-                            <input type="text" class="form-control" id="billing_company"
-                                v-model="order_modal_data.billing_company">
-                        </div>
-                        <div class="form-group">
-                            <label for="billing_address">Address Line 1</label>
-                            <input type="text" class="form-control" id="billing_address"
-                                v-model="order_modal_data.billing_address">
-                        </div>
-                        <div class="form-group">
-                            <label for="billing_address2">Address Line 2</label>
-                            <input type="text" class="form-control" id="billing_address2"
-                                v-model="order_modal_data.billing_address2">
-                        </div>
-                        <div class="form-group">
-                            <label for="billing_city">City</label>
-                            <input type="text" class="form-control" id="billing_city"
-                                v-model="order_modal_data.billing_city">
-                        </div>
-                        <div class="form-group">
-                            <label for="billing_state_code">State</label>
-                            <input type="text" class="form-control" id="billing_state_code"
-                                v-model="order_modal_data.billing_state_code">
-                        </div>
-                        <div class="form-group">
-                            <label for="billing_zip_code">Zip Code</label>
-                            <input type="number" class="form-control" id="billing_zip_code"
-                                v-model="order_modal_data.billing_zip_code">
-                        </div>
-
-                        <div v-show="order_modal_data.billing_address != order_modal_data.shipping_address">
-                            <h5>Shipping Info</h5>
-                            <div class="form-group">
-                                <label for="first_name">First Name</label>
-                                <input type="text" class="form-control" id="first_name"
-                                    v-model="order_modal_data.shipping_first_name">
-                            </div>
-                            <div class="form-group">
-                                <label for="last_name">Last Name</label>
-                                <input type="text" class="form-control" id="last_name"
-                                    v-model="order_modal_data.shipping_last_name">
-                            </div>
-
-                            <div class="form-group">
-                                <label for="shipping_company">Company</label>
-                                <input type="text" class="form-control" id="shipping_company"
-                                    v-model="order_modal_data.shipping_company">
-                            </div>
-                            <div class="form-group">
-                                <label for="shipping_address">Address Line 1</label>
-                                <input type="text" class="form-control" id="shipping_address"
-                                    v-model="order_modal_data.shipping_address">
-                            </div>
-                            <div class="form-group">
-                                <label for="shipping_address2">Address Line 2</label>
-                                <input type="text" class="form-control" id="shipping_address2"
-                                    v-model="order_modal_data.shipping_address2">
-                            </div>
-                            <div class="form-group">
-                                <label for="shipping_city">City</label>
-                                <input type="text" class="form-control" id="shipping_city"
-                                    v-model="order_modal_data.shipping_city">
-                            </div>
-                            <div class="form-group">
-                                <label for="shipping_state_code">State</label>
-                                <input type="text" class="form-control" id="shipping_state_code"
-                                    v-model="order_modal_data.shipping_state_code">
-                            </div>
-                            <div class="form-group">
-                                <label for="shipping_zip_code">Zip Code</label>
-                                <input type="number" class="form-control" id="shipping_zip_code"
-                                    v-model="order_modal_data.shipping_zip_code">
-                            </div>
-                        </div>
-
-                    </form>
                 </div>
                 <div class="modal-footer">
                     <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
-                    <button type="button" class="btn btn-primary">Save changes</button>
+                    <button type="button" class="btn btn-primary" data-dismiss="modal">Save
+                        changes</button>
                 </div>
             </div>
         </div>
@@ -181,7 +96,6 @@
         el: '#app',
         delimiters: ['[[', ']]'],
         data: {
-            message: 'Hello, world!',
             open_orders: [],
             order_modal_data: {
                 contact: '',
@@ -222,11 +136,130 @@
                 shipping_tracking_number: '',
                 payment_status: '',
                 shipping_status: '',
-            }
+            },
+            active_products_in_tab: [],
+            product_modal_data: {
+                product_type: '',
+                title: '',
+                POSTitle: '',
+                brand: '',
+                max_length: '',
+                subtitle: '',
+                action_message: '',
+                max_length: '',
+                is_active: '',
+                is_display_on_website: '',
+                description: '',
+                description_teaser: '',
+                max_length: '',
+                date_added: '',
+                date_modified: '',
+                SKU_SKU: '',
+                SKU_cost_of_good: '',
+                SKU_UPC_code: '',
+                SKU_unit_description: '',
+                SKU_min_order_qty: '',
+                SKU_max_order_qty: '',
+                SKU_order_in_multiples_of: '',
+                SKU_weight: '',
+                SKU_is_non_taxable: '',
+                SKU_is_no_shipping_charge: '',
+                SKU_Prices_price_level: '',
+                SKU_Prices_price: '',
+                SKU_Prices_price_quantity: '',
+                SKU_Prices_is_inventory_on: '',
+                SKU_Prices_Inventory_current_inventory: '',
+                SKU_Prices_Inventory_inventory_pool: '',
+                WineProperties_bottles_in_case: '',
+                WineProperties_bottle_size_in_ml: '',
+                WineProperties_type: '',
+                WineProperties_alcohol: '',
+                WineProperties_bottling_date: '',
+                WineProperties_tasting_notes: '',
+                WineProperties_wine_maker_notes: '',
+                WineProperties_food_pairing_notes: '',
+            },
+            selected: 'open_orders',
+            type_of_update: '',
         },
         methods: {
+            //////////////////////////////////////////////////////
+            //                Product Methods                   //
+            //////////////////////////////////////////////////////
+            getActiveProducts: function () {
+                axios({
+                    url: '{% url "mirmir_app:get_active_products" %}',
+                    method: 'GET',
+                }).then(response => {
+                    console.log(response.data)
+                    this.active_products_in_tab = response.data.data
+                })
+            },
+            loadProductModal: function (i) {
+                this.product_modal_data = this.open_orders[i]
+                this.type_of_update = 'update'
+            },
+
+            //////////////////////////////////////////////////////
+            //                Order Methods                     //
+            //////////////////////////////////////////////////////
+            getNextOrderNumberEmployee: function () {
+                axios({
+                    url: '{% url "mirmir_app:get_next_order_number_employee" %}',
+                    method: 'GET',
+                }).then(response => {
+                    console.log(response.data)
+                    this.order_modal_data.order_number = response.data
+                })
+            },
+            newOrder: function () {
+                this.order_modal_data = {
+                    contact: '',
+                    order_type: 1,
+                    order_number: 0,
+                    order_date: '',
+                    billing_birthdate: '',
+                    billing_first_name: '',
+                    billing_last_name: '',
+                    billing_company: '',
+                    billing_address: '',
+                    billing_address2: '',
+                    billing_city: '',
+                    billing_state_code: '',
+                    billing_zip_code: '',
+                    billing_email: '',
+                    shipping_birthdate: '',
+                    shipping_first_name: '',
+                    shipping_last_name: '',
+                    shipping_company: '',
+                    shipping_address: '',
+                    shipping_address2: '',
+                    shipping_city: '',
+                    shipping_state_code: '',
+                    shipping_zip_code: '',
+                    gift_message: '',
+                    sub_total: 0,
+                    order_notes: '',
+                    handling: 0,
+                    shipping: 0,
+                    tax: 0,
+                    total: 0,
+                    previous_order_number: '',
+                    transaction_type: 1,
+                    is_pickup: true,
+                    is_paid: false,
+                    shipping_service: '',
+                    shipping_tracking_number: '',
+                    payment_status: 1,
+                    shipping_status: 6,
+                }
+                this.getNextOrderNumberEmployee()
+                this.type_of_update = 'new'
+            },
+
             loadModal: function (i) {
                 this.order_modal_data = this.open_orders[i]
+                this.type_of_update = 'update'
             },
             getOpenOrders: function () {
                 axios({
@@ -236,10 +269,30 @@
                     console.log(response.data)
                     this.open_orders = response.data.data
                 })
+            },
+            saveOrderChanges: function () {
+                axios({
+                    url: '{% url "mirmir_app:save_order_changes" %}',
+                    method: 'POST',
+                    headers: {
+                        'X-CSRFToken': '{{ csrf_token }}',
+                    },
+                    data: {
+                        'order': this.order_modal_data,
+                        'type': this.type_of_update,
+                    }
+                }).then(response => {
+                    console.log(response.data)
+                    this.getOpenOrders()
+                })
+            },
+            updateTotal: function () {
+                this.order_modal_data.total = this.order_modal_data.sub_total * (1 + (this.order_modal_data.tax / 100)) + this.order_modal_data.shipping + this.order_modal_data.handling
             }
         },
         created: function () {
             this.getOpenOrders()
+            this.getActiveProducts()
             this.$forceUpdate()
         }
     })

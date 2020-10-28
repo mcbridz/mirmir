@@ -21,16 +21,102 @@ import re
 ####################################
 #         Employee Views           #
 ####################################
+
+def employee_check(user):
+    return user.profile.status.status == 'employee'
+
+
+@user_passes_test(employee_check)
+def get_active_products(request):
+    data = Product.get_active_products()
+    return JsonResponse({'data': data})
+
+
+@user_passes_test(employee_check)
+def get_next_order_number_employee(request):
+    return HttpResponse(Order.objects.count() + 1)
+
+
+@user_passes_test(employee_check)
+def save_order_changes(request):
+    # print(request.body)
+    order_update = json.loads(request.body)['order']
+    type_of_update = json.loads(request.body)['type']
+    print(order_update)
+    # order object update
+    if type_of_update == 'update':
+        print(order_update['order_number'])
+        order = Order.objects.get(order_number=order_update['order_number'])
+        order.order_type = OrderType.objects.get(id=order_update['order_type'])
+        order.shipping_status = ShippingStatus.objects.get(
+            id=order_update['shipping_status'])
+        order.billing_first_name = order_update['billing_first_name']
+        order.billing_last_name = order_update['billing_last_name']
+        order.billing_address = order_update['billing_address']
+        order.billing_address2 = order_update['billing_address2']
+        order.billing_city = order_update['billing_city']
+        order.billing_state_code = order_update['billing_state_code']
+        order.billing_zip_code = order_update['billing_zip_code']
+        order.billing_email = order_update['billing_email']
+        order.sub_total = order_update['sub_total']
+        order.is_pickup = order_update['is_pickup']
+        order.payment_status = PaymentStatus.objects.get(
+            id=order_update['payment_status'])
+        order.shipping_first_name = order_update['shipping_first_name']
+        order.shipping_last_name = order_update['shipping_last_name']
+        order.shipping_address = order_update['shipping_address']
+        order.shipping_address2 = order_update['shipping_address2']
+        order.shipping_city = order_update['shipping_city']
+        order.shipping_state_code = order_update['shipping_state_code']
+        order.shipping_zip_code = order_update['shipping_zip_code']
+        order.transaction_type = TransactionType.objects.get(
+            id=order_update['transaction_type'])
+        order.total = order_update['total']
+        order.previous_order_number = order_update['previous_order_number']
+    elif type_of_update == 'new':
+        order = Order(
+            order_type=OrderType.objects.get(
+                id=order_update['order_type']),
+            order_number=order_update['order_number'],
+            shipping_status=ShippingStatus.objects.get(
+                id=order_update['shipping_status']),
+            billing_first_name=order_update['billing_first_name'],
+            billing_last_name=order_update['billing_last_name'],
+            billing_address=order_update['billing_address'],
+            billing_address2=order_update['billing_address2'],
+            billing_city=order_update['billing_city'],
+            billing_state_code=order_update['billing_state_code'],
+            billing_zip_code=order_update['billing_zip_code'],
+            billing_email=order_update['billing_email'],
+            sub_total=order_update['sub_total'],
+            is_pickup=order_update['is_pickup'],
+            payment_status=PaymentStatus.objects.get(
+                id=order_update['payment_status']),
+            shipping_first_name=order_update['shipping_first_name'],
+            shipping_last_name=order_update['shipping_last_name'],
+            shipping_address=order_update['shipping_address'],
+            shipping_address2=order_update['shipping_address2'],
+            shipping_city=order_update['shipping_city'],
+            shipping_state_code=order_update['shipping_state_code'],
+            shipping_zip_code=order_update['shipping_zip_code'],
+            transaction_type=TransactionType.objects.get(
+                id=order_update['transaction_type']),
+            total=order_update['total'],
+            previous_order_number=order_update['previous_order_number'],
+        )
+    else:
+        return HttpResponse('Failure')
+    order.save()
+
+    return HttpResponse('Ok')
+
+
 def justify_carousel_ordering():
     slides = CarouselSlide.objects.all()
     i = 1
     for slide in slides:
         slide.display_order = i
         i += 1
-
-
-def employee_check(user):
-    return user.profile.status.status == 'employee'
 
 
 @user_passes_test(employee_check)

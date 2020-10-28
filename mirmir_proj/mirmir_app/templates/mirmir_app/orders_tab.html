@@ -1,0 +1,270 @@
+<!-- Orders Tab -->
+<div v-show="selected == 'open_orders'">
+    <table class="table">
+        <thead>
+            <tr>
+                <th scope="col">#</th>
+                <th scope="col">Date Of Order</th>
+                <th scope="col">Last Name</th>
+                <th scope="col">Total</th>
+                <th scope="col"></th>
+            </tr>
+        </thead>
+        <tbody>
+            <tr v-for="(order, index) in open_orders">
+                <td>[[order.order_number]]</td>
+                <td>[[order.order_date]]</td>
+                <td>[[order.billing_last_name]]</td>
+                <td>$[[order.total.toFixed(2)]]</td>
+                <td><a @click="loadModal(index)" data-toggle="modal" data-target="#modal"><i
+                            class="fas fa-edit"></i></a></td>
+            </tr>
+        </tbody>
+    </table>
+
+    <div id="orders_button_div">
+        <a @click="newOrder" data-toggle="modal" data-target="#modal" class="btn-btn-primary"><i
+                class="fas fa-plus"></i></a>
+    </div>
+
+    <div class="modal fade" id="modal" tabindex="-1" role="dialog" aria-labelledby="modalLabel" aria-hidden="true">
+        <div class="modal-dialog" role="document">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="modalLabel">Order</h5>
+                    <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                        <span aria-hidden="true">&times;</span>
+                    </button>
+                </div>
+                <div class="modal-body">
+                    <form>
+                        <div class="form-group">
+                            <label for="contact">Contact</label>
+                            <input type="text" class="form-control" id="contact" v-model="order_modal_data.contact"
+                                disabled>
+                        </div>
+                        <div class="form-group">
+                            <label for="order_number">Order Number</label>
+                            <input type="number" class="form-control" id="order_number"
+                                v-model="order_modal_data.order_number" disabled>
+                        </div>
+                        <div class="input-group mb-3">
+                            <div class="input-group-prepend">
+                                <label class="input-group-text" for="order_type">Order Type</label>
+                            </div>
+                            <select v-model="order_modal_data.order_type" name="order_type" id="order_type"
+                                class="custom-select">
+                                <option value=1>Admin Panel</option>
+                                <option value=2>Club Order</option>
+                                <option value=3>Facebook</option>
+                                <option value=4>iPad</option>
+                                <option value=5>Mobile</option>
+                                <option value=6>POS</option>
+                                <option value=7>Telemarketing</option>
+                                <option value=8>Website</option>
+                            </select>
+                        </div>
+                        <div class="form-group">
+                            <label for="order_date">Order Date</label>
+                            <input type="text" class="form-control" id="order_date"
+                                v-model="order_modal_data.order_date" disabled>
+                        </div>
+                        <h5>Billing Info</h5>
+                        <div class="form-group">
+                            <label for="first_name">First Name</label>
+                            <input type="text" class="form-control" id="first_name"
+                                v-model="order_modal_data.billing_first_name">
+                        </div>
+                        <div class="form-group">
+                            <label for="last_name">Last Name</label>
+                            <input type="text" class="form-control" id="last_name"
+                                v-model="order_modal_data.billing_last_name">
+                        </div>
+
+                        <div class="form-group">
+                            <label for="billing_company">Company</label>
+                            <input type="text" class="form-control" id="billing_company"
+                                v-model="order_modal_data.billing_company">
+                        </div>
+                        <div class="form-group">
+                            <label for="billing_address">Address Line 1</label>
+                            <input type="text" class="form-control" id="billing_address"
+                                v-model="order_modal_data.billing_address">
+                        </div>
+                        <div class="form-group">
+                            <label for="billing_address2">Address Line 2</label>
+                            <input type="text" class="form-control" id="billing_address2"
+                                v-model="order_modal_data.billing_address2">
+                        </div>
+                        <div class="form-group">
+                            <label for="billing_city">City</label>
+                            <input type="text" class="form-control" id="billing_city"
+                                v-model="order_modal_data.billing_city">
+                        </div>
+                        <div class="form-group">
+                            <label for="billing_state_code">State</label>
+                            <input type="text" class="form-control" id="billing_state_code"
+                                v-model="order_modal_data.billing_state_code">
+                        </div>
+                        <div class="form-group">
+                            <label for="billing_zip_code">Zip Code</label>
+                            <input type="number" class="form-control" id="billing_zip_code"
+                                v-model="order_modal_data.billing_zip_code">
+                        </div>
+                        <h5>Shipping Info</h5>
+                        <div class="form-group">
+                            <label for="first_name">First Name</label>
+                            <input type="text" class="form-control" id="first_name"
+                                v-model="order_modal_data.shipping_first_name">
+                        </div>
+                        <div class="form-group">
+                            <label for="last_name">Last Name</label>
+                            <input type="text" class="form-control" id="last_name"
+                                v-model="order_modal_data.shipping_last_name">
+                        </div>
+                        <div class="form-group">
+                            <label for="billing_email">Email Address</label>
+                            <input type="email" class="form-control" id="billing_email"
+                                v-model="order_modal_data.billing_email">
+                        </div>
+                        <div class="form-group">
+                            <label for="shipping_company">Company</label>
+                            <input type="text" class="form-control" id="shipping_company"
+                                v-model="order_modal_data.shipping_company">
+                        </div>
+                        <div class="form-group">
+                            <label for="shipping_address">Address Line 1</label>
+                            <input type="text" class="form-control" id="shipping_address"
+                                v-model="order_modal_data.shipping_address">
+                        </div>
+                        <div class="form-group">
+                            <label for="shipping_address2">Address Line 2</label>
+                            <input type="text" class="form-control" id="shipping_address2"
+                                v-model="order_modal_data.shipping_address2">
+                        </div>
+                        <div class="form-group">
+                            <label for="shipping_city">City</label>
+                            <input type="text" class="form-control" id="shipping_city"
+                                v-model="order_modal_data.shipping_city">
+                        </div>
+                        <div class="form-group">
+                            <label for="shipping_state_code">State</label>
+                            <input type="text" class="form-control" id="shipping_state_code"
+                                v-model="order_modal_data.shipping_state_code">
+                        </div>
+                        <div class="form-group">
+                            <label for="shipping_zip_code">Zip Code</label>
+                            <input type="number" class="form-control" id="shipping_zip_code"
+                                v-model="order_modal_data.shipping_zip_code">
+                        </div>
+                        <h5>POS Operations</h5>
+                        <div class="form-group">
+                            <label for="gift_message">Gift Message</label>
+                            <input type="text" class="form-control" id="gift_message"
+                                v-model="order_modal_data.gift_message">
+                        </div>
+                        <div class="form-group">
+                            <label for="sub_total">Sub-Total</label>
+                            <input type="number" step="0.01" min=0 class="form-control" id="sub_total"
+                                v-model="order_modal_data.sub_total">
+                        </div>
+                        <div class="form-group">
+                            <label for="order_notes">Order Notes</label>
+                            <textarea rows="4" class="form-control" id="order_notes"></textarea>
+                        </div>
+                        <div class="form-group">
+                            <label for="handling">Handling</label>
+                            <input type="number" step="0.01" min=0 class="form-control" id="handling"
+                                v-model="order_modal_data.handling">
+                        </div>
+                        <div class="form-group">
+                            <label for="shipping">Shipping</label>
+                            <input type="number" step="0.01" min=0 class="form-control" id="shipping"
+                                v-model="order_modal_data.shipping">
+                        </div>
+                        <div class="form-group">
+                            <label for="tax">Tax</label>
+                            <input type="number" step="0.01" min=0 class="form-control" id="tax"
+                                v-model="order_modal_data.tax">
+                        </div>
+                        <div class="form-group">
+                            <label for="total">Total</label>
+                            <input type="number" step="0.01" min=0 class="form-control" id="total"
+                                v-model="order_modal_data.total" disabled>
+                            <a id="update_total_button" class="btn btn-primary" @click="updateTotal">Update
+                                Total</a>
+                        </div>
+                        <div class="form-group">
+                            <label for="previous_order_number">Previous Order Number (if refund)</label>
+                            <input type="number" class="form-control" id="previous_order_number"
+                                v-model="order_modal_data.previous_order_number">
+                        </div>
+                        <div class="input-group mb-3">
+                            <div class="input-group-prepend">
+                                <label class="input-group-text" for="transaction_type">Transaction Type</label>
+                            </div>
+                            <select v-model="order_modal_data.transaction_type" name="transaction_type"
+                                id="transaction_type" class="custom-select">
+                                <option value=1>Order</option>
+                                <option value=2>Refund</option>
+                            </select>
+                        </div>
+                        <div class="form-check">
+                            <input type="checkbox" class="form-check-input" id="is_pickup"
+                                v-model="order_modal_data.is_pickup">
+                            <label for="is_pickup" class="form-check-label">Pickup?</label>
+                        </div>
+                        <div class="form-check">
+                            <input type="checkbox" class="form-check-input" id="is_paid"
+                                v-model="order_modal_data.is_paid">
+                            <label for="is_paid" class="form-check-label">Paid?</label>
+                        </div>
+                        <div class="form-group">
+                            <label for="shipping_service">Shipping Service</label>
+                            <input type="text" class="form-control" id="shipping_service"
+                                v-model="order_modal_data.shipping_service">
+                        </div>
+                        <div class="form-group">
+                            <label for="shipping_tracking_number">Shipping Tracking Number</label>
+                            <input type="text" class="form-control" id="shipping_tracking_number"
+                                v-model="order_modal_data.shipping_tracking_number">
+                        </div>
+                        <div class="input-group mb-3">
+                            <div class="input-group-prepend">
+                                <label class="input-group-text" for="payment_status">Payment Status</label>
+                            </div>
+                            <select v-model="order_modal_data.payment_status" name="payment_status" id="payment_status"
+                                class="custom-select">
+                                <option value=1>Submitted</option>
+                                <option value=2>Quarantine</option>
+                                <option value=3>Pending</option>
+                                <option value=4>Completed</option>
+                                <option value=5>Concelled</option>
+                                <option value=6>Hold</option>
+                            </select>
+                            <div class="input-group mb-3">
+                                <div class="input-group-prepend">
+                                    <label class="input-group-text" for="shipping_status">Shipping Status</label>
+                                </div>
+                                <select v-model="order_modal_data.shipping_status" name="shipping_status"
+                                    id="shipping_status" class="custom-select">
+                                    <option value=1>Picked Up</option>
+                                    <option value=2>Handled Externally</option>
+                                    <option value=3>No Shipping Required</option>
+                                    <option value=4>Sent To Fulfillment</option>
+                                    <option value=5>Shipped</option>
+                                    <option value=6>No Status</option>
+                                </select>
+                            </div>
+                        </div>
+                    </form>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
+                    <button type="button" class="btn btn-primary" @click="saveOrderChanges" data-dismiss="modal">Save
+                        changes</button>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>

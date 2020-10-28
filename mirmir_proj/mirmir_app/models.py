@@ -92,6 +92,54 @@ class Product(models.Model):
     def __str__(self):
         return self.title
 
+    @staticmethod
+    def get_active_products():
+        products = Product.objects.filter(is_active=True)
+        product_output = []
+        for product in products:
+            product_output.append({
+                "product_type": product.product_type,
+                "title": product.title,
+                "POSTitle": product.POSTitle,
+                "brand": product.brand,
+                "subtitle": product.subtitle,
+                "action_message": product.action_message,
+                "is_active": product.is_active,
+                "is_display_on_website": product.is_display_on_website,
+                "description": product.description,
+                "description_teaser": product.description_teaser,
+                # wine_properties
+                "date_added": product.date_added.strftime('%m/%d/%Y'),
+                "date_modified": '' if product.date_modified is None else product.date_modified.strftime('%m/%d/%Y'),
+                # SKU generation using last three digits of year, followed by month and day bottled, followed by the first three letters of the mead name
+                "SKU_SKU": product.SKU_SKU,
+                "SKU_cost_of_good": product.SKU_cost_of_good,
+                "SKU_UPC_code": product.SKU_UPC_code,
+                "SKU_unit_description": product.SKU_unit_description,
+                "SKU_min_order_qty": product.SKU_min_order_qty,
+                "SKU_max_order_qty": product.SKU_max_order_qty,
+                "SKU_order_in_multiples_of": product.SKU_order_in_multiples_of,
+                "SKU_weight": product.SKU_weight,
+                "SKU_is_non_taxable": product.SKU_is_non_taxable,
+                "SKU_is_no_shipping_charge": product.SKU_is_no_shipping_charge,
+                "SKU_Prices_price_level": product.SKU_Prices_price_level,
+                "SKU_Prices_price": product.SKU_Prices_price,
+                'SKU_Prices_price_quantity': product.SKU_Prices_price_quantity,
+                "SKU_Prices_is_inventory_on": product.SKU_Prices_is_inventory_on,
+                "SKU_Prices_Inventory_current_inventory": product.SKU_Prices_Inventory_current_inventory,
+                "SKU_Prices_Inventory_inventory_pool": product.SKU_Prices_Inventory_inventory_pool,
+                "WineProperties_bottles_in_case": product.WineProperties_bottles_in_case,
+                "WineProperties_bottle_size_in_ml": product.WineProperties_bottle_size_in_ml,
+                "WineProperties_type": product.WineProperties_type,
+                "WineProperties_alcohol": product.WineProperties_alcohol,
+                "WineProperties_bottling_date": product.WineProperties_bottling_date,
+                "WineProperties_tasting_notes": product.WineProperties_tasting_notes,
+                "WineProperties_wine_maker_notes": product.WineProperties_wine_maker_notes,
+                "WineProperties_food_pairing_notes": product.WineProperties_food_pairing_notes,
+
+            })
+        return product_output
+
 
 class ProductPhoto(models.Model):
     photo = models.ImageField(upload_to='product_images')
@@ -229,7 +277,7 @@ class Order(models.Model):
     #            billing=source(customer)           #
     ################################################
     # employee birthday
-    billing_birthdate = models.DateField()
+    billing_birthdate = models.DateField(blank=True)
     billing_first_name = models.CharField(max_length=50)
     billing_last_name = models.CharField(max_length=50)
     billing_company = models.CharField(
