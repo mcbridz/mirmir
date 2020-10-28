@@ -403,6 +403,7 @@
                 },
                 cart: [],
                 total: 0,
+                is_gift: false,
             },
             methods: {
                 calculateTotal: function () {
@@ -423,12 +424,17 @@
                             order: this.order,
                             cart: this.cart,
                             total: this.total,
+                            is_gift: this.is_gift
                         },
                         headers: {
                             'X-CSRFToken': '{{ csrf_token}}'
                         }
                     }).then((response) => {
                         console.log(response.data)
+                        sessionStorage.setItem('cart', JSON.stringify([]))
+                        sessionStorage.setItem('form_data', JSON.stringify([]))
+                        sessionStorage.setItem('is_gift', JSON.stringify([]))
+                        window.location.href = "{% url 'mirmir_app:profile' %}"
                     })
                 },
                 removeItemFromCart: function (i) {
@@ -441,20 +447,25 @@
             created: function () {
                 let cart_data = JSON.parse(sessionStorage.getItem('cart'))
                 if (cart_data === null) {
-                    // console.log('null')
+                    console.log('null')
                     sessionStorage.setItem('cart', JSON.stringify([]))
                     this.cart = []
                 } else {
-                    // console.log('not null')
+                    console.log('not null')
                     this.cart = cart_data
                 }
                 let order_data = JSON.parse(sessionStorage.getItem('form_data'))
                 if (order_data === null) {
+                    console.log('null')
                     sessionStorage.setItem('form_data', JSON.stringify(this.order))
                 } else {
+                    console.log('not null')
                     this.order = order_data
                 }
+                let is_gift = JSON.parse(sessionStorage.getItem('is_gift'))
+                this.is_gift = is_gift
                 this.calculateTotal()
+                this.$forceupdate()
             }
         })
     </script>

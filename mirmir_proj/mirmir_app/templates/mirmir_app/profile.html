@@ -1,27 +1,51 @@
 {%extends 'mirmir_app/base.html'%}
 {% load crispy_forms_tags %}
+{% load mirmir_filters %}
 {%block title%}Profile{%endblock%}
 {%block style%}
+<style>
+    #header {
+        text-align: center;
+    }
+</style>
 {%endblock%}
 {%block body%}
 <form class="container" id="form_input" action="#!" method="post">
-    <h1>Profile</h1>
-    <input type="hidden" id="recaptcha" name="g-recaptcha-response">
-    {% csrf_token %}
-    {{ form|crispy }}
-    <button type="submit" id="submit_btn" class="btn btn-primary g-recaptcha" data-sitekey="reCAPTCHA_site_key"
-        data-callback='onSubmit'>Update Profile</button>
+    <h1 id="header">Profile</h1>
     <h2>Order History</h2>
     <div class="container">
-        <div class="table">
+        <table class="table">
             <thead>
                 <th scope="col">#</th>
                 <th scope="col">Date</th>
                 <th scope="col">Address</th>
                 <th scope="col">Num Items</th>
+                <th scope="col"></th>
             </thead>
-        </div>
+            <tbody>
+                {% if orders %}
+                {% for order in orders %}
+                <tr>
+                    <th scope="row">{{order.order_number}}</th>
+                    <td>{{order.order_date}}</td>
+                    <td>{{order.shipping_address}} {{order.shipping_address2}}, {{order.shipping_city}}
+                        {{order.shipping_state}}</td>
+                    <td>{{num_items|index:forloop.counter0}}</td>
+                    <td><a href="{% url 'mirmir_app:order_details' order.order_number %}"><i
+                                class="fas fa-ellipsis-h"></i></a></td>
+                </tr>
+                {% endfor %}
+                {% endif %}
+            </tbody>
+        </table>
     </div>
+    <h2>Profile Data</h2>
+    <input type="hidden" id="recaptcha" name="g-recaptcha-response">
+    {% csrf_token %}
+    {{ form|crispy }}
+    <button type="submit" id="submit_btn" class="btn btn-primary g-recaptcha" data-sitekey="reCAPTCHA_site_key"
+        data-callback='onSubmit'>Update Profile</button>
+
 </form>
 
 {%endblock%}

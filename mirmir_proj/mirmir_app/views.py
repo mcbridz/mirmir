@@ -6,6 +6,7 @@ from django.utils import timezone
 from django.conf import settings
 from django.contrib.auth.models import User
 from django.contrib import auth
+from django.core import serializers
 from .models import StatusField, SortField, Contact, Product, CarouselSlide, MainPageWarning, MainPageHighlight, Order, OrderType, PaymentStatus, OrderItemQuantity, ShippingStatus, TransactionType
 import requests
 import random
@@ -33,9 +34,23 @@ def employee_check(user):
 
 
 @user_passes_test(employee_check)
+def get_open_orders(request):
+    #data = serializers.serialize('xml', SomeModel.objects.all(), fields=('name','size'))
+    data = Order.get_open_orders()
+    return JsonResponse({'data': data})
+
+
+@user_passes_test(employee_check)
 def employee_main(request):
     print(request)
-    return render(request, 'mirmir_app/employee_main.html')
+    context = {
+        'open_orders': Order.get_open_orders(),
+        'shipping_statuses': ShippingStatus.get_shipping_statuses(),
+        'order_types': OrderType.get_order_types(),
+        'transaction_types': TransactionType.get_transaction_types(),
+        'payment_statuses': PaymentStatus.get_payment_statuses(),
+    }
+    return render(request, 'mirmir_app/employee_main.html', context)
 
 
 @user_passes_test(employee_check)
@@ -329,6 +344,12 @@ def profile(request):
         form = ContactForm(instance=request.user.profile)
         orders = request.user.profile.orders.all()
         num_items = []
+        context = {
+            'form': form,
+            'site_key': settings.RECAPTCHA_SITE_KEY,
+        }
+
+        # only if user has order history
         if orders:
             for order in orders:
                 item_quantities = order.items.all()
@@ -336,11 +357,9 @@ def profile(request):
                 for tup in item_quantities:
                     total += tup.quantity
                 num_items.append(total)
-        context = {
-            'form': form,
-            'site_key': settings.RECAPTCHA_SITE_KEY,
-            'orders': orders,
-        }
+            context['orders'] = orders
+            context['num_items'] = num_items
+
         return render(request, 'mirmir_app/profile.html', context)
     else:
         secret_key = settings.RECAPTCHA_SECRET_KEY
@@ -361,6 +380,17 @@ def profile(request):
         if form.is_valid():
             form.save()
         return HttpResponseRedirect(reverse('mirmir_app:main'))
+
+
+@login_required
+def order_details(request, order_num):
+    order = Order.objects.get(order_number=order_num)
+    items = order.items.all()
+    context = {
+        'order': order,
+        'items': items,
+    }
+    return render(request, 'mirmir_app/order_details.html', context)
 
 ##########################################################
 #                       shop views                       #
@@ -420,7 +450,7 @@ def cart_verification(request):
 
 def upsert_order(request):
     data = json.loads(request.body)
-    # print(data)
+    print(data)
     # big make for Order
     billing = data['order']['billing']
     shipping = data['order']['shipping']
@@ -462,7 +492,7 @@ def upsert_order(request):
         transaction_type=TransactionType.objects.get(t_type='order'),
         previous_order_number=0,
     )
-    if data['order']['is_gift']:
+    if data['is_gift']:
         birthday = shipping['birthday']
         birthday = re.split('/', birthday)
         final_birthday = birthday[2] + '-' + birthday[0] + '-' + birthday[1]
@@ -490,4 +520,4 @@ def upsert_order(request):
         new_item_quantity = OrderItemQuantity(
             quantity=quantity, product=product, order=order)
         new_item_quantity.save()
-    return HttpResponse('Ok')
+    return HttpResponse('Order Complete')

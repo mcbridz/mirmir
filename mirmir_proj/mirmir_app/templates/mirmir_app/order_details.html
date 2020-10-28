@@ -1,0 +1,119 @@
+{%extends 'mirmir_app/base.html'%}
+{% load crispy_forms_tags %}
+{%block title%}Order Details{%endblock%}
+{%block style%}
+
+{%endblock%}
+{%block body%}
+<div class="container">
+    <table class="table">
+        <thead>
+            <tr>
+                <th scope="row">Billing Information</th>
+                <th></th>
+            </tr>
+        </thead>
+        <tbody>
+            <tr>
+                <th scope="row">Order Number: </th>
+                <td>{{order.order_number}}</td>
+            </tr>
+            <tr>
+                <th scope="row">Name: </th>
+                <td>{{order.billing_first_name}} {{order.billing_last_name}}</td>
+            </tr>
+            {% if order.billing_company != '' %}
+            <tr>
+                <th scope="row">Company: </th>
+                <td>{{order.billing_company}}</td>
+            </tr>
+            {% endif %}
+            <tr>
+                <th scope="row">Address: </th>
+                <td>{{order.billing_address}} {{order.billing_address2}}, {{order.billing_city}}
+                    {{order.billing_state_code}}, {{order.billing_zip_code}}</td>
+            </tr>
+            <tr>
+                <th scope="row">Email: </th>
+                <td>{{order.billing_email}}</td>
+            </tr>
+            {% if order.billing_address != order.shipping_address %}
+            <tr>
+                <td></td>
+                <td></td>
+            </tr>
+            <thead>
+                <tr>
+                    <th scope="row">Shipping Information</th>
+                    <th></th>
+                </tr>
+            </thead>
+            <tr>
+                <th scope="row">Name: </th>
+                <td>{{order.shipping_first_name}} {{order.shipping_last_name}}</td>
+            </tr>
+            {% if order.shipping_company != '' %}
+            <tr>
+                <th scope="row">Company: </th>
+                <td>{{order.shipping_company}}</td>
+            </tr>
+            {% endif %}
+            <tr>
+                <th scope="row">Address: </th>
+                <td>{{order.shipping_address}} {{order.shipping_address2}}, {{order.shipping_city}}
+                    {{order.shipping_state_code}}, {{order.shipping_zip_code}}</td>
+            </tr>
+            {% endif %}
+            <tr>
+                <td></td>
+                <td></td>
+            </tr>
+        </tbody>
+    </table>
+    {% for item in items %}
+    <table class="table">
+        <thead>
+            <tr>
+                <th>Product Name: </th>
+                <td>{{item.product.title}}</td>
+                <th>Number Ordered: </th>
+                <td>{{item.quantity}}</td>
+            </tr>
+        </thead>
+        <tbody>
+            <tr>
+                <td>{{item.product.brand}}</td>
+                <td>{{item.product.WineProperties_alcohol}}</td>
+                <td>{{item.product.WineProperties_bottle_size_in_ml}} ml</td>
+                <td>${{item.product.SKU_cost_of_good}}</td>
+            </tr>
+
+        </tbody>
+    </table>
+    {% endfor %}
+    <table class="table">
+        <thead>
+            <tr>
+                <th scope="row">Sub-Total: </th>
+                <th>${{order.sub_total}}</th>
+            </tr>
+            <tr>
+                <th scope="row">Shipping: </th>
+                <th>${{order.shipping}}</th>
+            </tr>
+            <tr>
+                <th scope="row">Tax: </th>
+                <th>${{order.tax}}</th>
+            </tr>
+            <tr>
+                <th scope="row">Total: </th>
+                <th>${{order.total}}</th>
+            </tr>
+        </thead>
+    </table>
+</div>
+<a href="{% url 'mirmir_app:profile' %}" class="btn btn-primary">Back To Profile and Order History</a>
+{%endblock%}
+{%block javascript %}
+
+{%endblock%}

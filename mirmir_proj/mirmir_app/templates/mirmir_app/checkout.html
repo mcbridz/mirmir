@@ -408,7 +408,7 @@
                     v-model="order.shipping.first_name">
             </div>
             <div class="form-group">
-                <label for="first_name">Last Name</label>
+                <label for="last_name">Last Name</label>
                 <input type="text" @input="checkFilledForm" name="last_name" class="form-control" maxlength="50"
                     v-model="order.shipping.last_name">
             </div>
@@ -526,10 +526,12 @@
                 saveFormData: function () {
                     console.log(this.order)
                     sessionStorage.setItem('form_data', JSON.stringify(this.order))
+                    sessionStorage.setItem('is_gift', JSON.stringify(this.is_gift))
                 },
                 checkFilledForm: function () {
                     // console.log(this.order)
-                    let cats = [this.order.billing.first_name, this.order.billing.last_name, this.order.billing.address, this.order.billing.city, this.order.billing.state, this.order.billing.zip_code]
+                    console.log(this.order)
+                    let cats = [this.order.billing.first_name, this.order.billing.last_name, this.order.billing.address, this.order.billing.city, this.order.billing.state, this.order.billing.zip_code, this.order.birthday]
                     // console.log(cats)
                     let truth = true
                     for (i = 0; i < cats.length; ++i) {
@@ -549,17 +551,20 @@
             created: function () {
                 let cart_data = JSON.parse(sessionStorage.getItem('cart'))
                 if (cart_data === null) {
-                    // console.log('null')
+                    console.log('null')
                     sessionStorage.setItem('cart', JSON.stringify([]))
                     this.cart = []
                 } else {
-                    // console.log('not null')
+                    console.log('not null')
                     this.cart = cart_data
                 }
                 let order_data = JSON.parse(sessionStorage.getItem('form_data'))
                 if (order_data === null) {
-                    sessionStorage.setItem('form_data', JSON.stringify(this.order))
+                    console.log('null')
+                    this.saveFormData()
+                    return
                 } else {
+                    console.log('not null')
                     this.order = order_data
                 }
                 this.checkFilledForm()

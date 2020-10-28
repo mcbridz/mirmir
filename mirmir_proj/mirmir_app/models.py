@@ -146,6 +146,18 @@ class ShippingStatus(models.Model):
     def __str__(self):
         return self.pretty_status
 
+    @staticmethod
+    def get_shipping_statuses():
+        statuses = ShippingStatus.objects.all()
+        output = []
+        for status in statuses:
+            output.append({
+                'id': status.id,
+                'status': status.status,
+                'pretty_status': status.pretty_status,
+            })
+        return output
+
 
 class OrderType(models.Model):
     type_string = models.CharField(max_length=50)
@@ -153,6 +165,17 @@ class OrderType(models.Model):
 
     def __str__(self):
         return self.pretty_type
+
+    @staticmethod
+    def get_order_types():
+        types = OrderType.objects.all()
+        output = []
+        for t_type in types:
+            output.append({
+                'type_string': t_type.type_string,
+                'pretty_type': t_type.pretty_type,
+                'id': t_type.id,
+            })
 
 
 class TransactionType(models.Model):
@@ -162,6 +185,17 @@ class TransactionType(models.Model):
     def __str__(self):
         return self.pretty_t_type
 
+    @staticmethod
+    def get_transaction_types():
+        t_types = TransactionType.objects.all()
+        output = []
+        for t_type in t_types:
+            output.append({
+                't_type': t_type.t_type,
+                'pretty_t_type': t_type.pretty_t_type,
+                'id': t_type.id,
+            })
+
 
 class PaymentStatus(models.Model):
     status = models.CharField(max_length=50)
@@ -169,6 +203,17 @@ class PaymentStatus(models.Model):
 
     def __str__(self):
         return self.pretty_status
+
+    @staticmethod
+    def get_payment_statuses():
+        payment_statuses = PaymentStatus.objects.all()
+        output = []
+        for status in payment_statuses:
+            output.append({
+                'status': status.status,
+                'pretty_status': status.pretty_status,
+                'id': status.id
+            })
 
 
 class Order(models.Model):
@@ -229,6 +274,57 @@ class Order(models.Model):
 
     def __str__(self):
         return self.transaction_type.pretty_t_type + str(self.order_number)
+
+    class Meta:
+        ordering = ['-order_date']
+
+    @staticmethod
+    def get_open_orders():
+        orders = Order.objects.exclude(payment_status__status=[
+                                       'cancelled', 'completed'])
+        order_output = []
+        for order in orders:
+            order_output.append({
+                "contact": order.contact.username.username,
+                "order_type": order.order_type.id,
+                "order_number": order.order_number,
+                "order_date": order.order_date.strftime('%m/%d/%Y'),
+                "billing_birthdate": order.billing_birthdate.strftime('%m/%d/%Y'),
+                "billing_first_name": order.billing_first_name,
+                "billing_last_name": order.billing_last_name,
+                "billing_company": order.billing_company,
+                "billing_address": order.billing_address,
+                "billing_address2": order.billing_address2,
+                "billing_city": order.billing_city,
+                "billing_state_code": order.billing_state_code,
+                "billing_zip_code": order.billing_zip_code,
+                "billing_email": order.billing_email,
+                "shipping_birthdate": order.shipping_birthdate.strftime('%m/%d/%Y'),
+                "shipping_first_name": order.shipping_first_name,
+                "shipping_last_name": order.shipping_last_name,
+                "shipping_company": order.shipping_company,
+                "shipping_address": order.shipping_address,
+                "shipping_address2": order.shipping_address2,
+                "shipping_city": order.shipping_city,
+                "shipping_state_code": order.shipping_state_code,
+                "shipping_zip_code": order.shipping_zip_code,
+                "gift_message": order.gift_message,
+                "sub_total": order.sub_total,
+                "order_notes": order.order_notes,
+                "handling": order.handling,
+                "shipping": order.shipping,
+                "tax": order.tax,
+                "total": order.total,
+                "previous_order_number": order.previous_order_number,
+                "transaction_type": order.transaction_type.id,
+                "is_pickup": order.is_pickup,
+                "is_paid": order.is_paid,
+                "shipping_service": order.shipping_service,
+                "shipping_tracking_number": order.shipping_tracking_number,
+                "payment_status": order.payment_status.id,
+                "shipping_status": order.shipping_status.id,
+            })
+        return order_output
 
 
 class OrderItemQuantity(models.Model):
