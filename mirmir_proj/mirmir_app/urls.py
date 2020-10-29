@@ -41,4 +41,7 @@ urlpatterns = [
          name='get_next_order_number_employee'),
     path('get_active_products/', views.get_active_products,
          name='get_active_products'),
+    path('save_product_changes/', views.save_product_changes,
+         name='save_product_changes'),
+    path('save_photo/', views.save_photo, name='save_photo')
 ]

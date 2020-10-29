@@ -97,7 +97,16 @@ class Product(models.Model):
         products = Product.objects.filter(is_active=True)
         product_output = []
         for product in products:
+            photos = product.product_photos.all()
+            photo_data = []
+            for photo in photos:
+                photo_data.append({
+                    "photo": photo.photo.url,
+                    "photo_image_number": photo.photo_image_number,
+                    "id": photo.id,
+                })
             product_output.append({
+                "id": product.id,
                 "product_type": product.product_type,
                 "title": product.title,
                 "POSTitle": product.POSTitle,
@@ -136,7 +145,7 @@ class Product(models.Model):
                 "WineProperties_tasting_notes": product.WineProperties_tasting_notes,
                 "WineProperties_wine_maker_notes": product.WineProperties_wine_maker_notes,
                 "WineProperties_food_pairing_notes": product.WineProperties_food_pairing_notes,
-
+                "product_photos": photo_data,
             })
         return product_output
 
@@ -149,6 +158,9 @@ class ProductPhoto(models.Model):
 
     def __str__(self):
         return str(self.product) + ' photo# ' + str(self.photo_image_number)
+
+    class Meta:
+        ordering = ['photo_image_number']
 
 ###################################################################
 #                          Page Models                            #

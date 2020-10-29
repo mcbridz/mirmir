@@ -7,7 +7,7 @@ from django.conf import settings
 from django.contrib.auth.models import User
 from django.contrib import auth
 from django.core import serializers
-from .models import StatusField, SortField, Contact, Product, CarouselSlide, MainPageWarning, MainPageHighlight, Order, OrderType, PaymentStatus, OrderItemQuantity, ShippingStatus, TransactionType
+from .models import StatusField, SortField, Contact, Product, CarouselSlide, MainPageWarning, MainPageHighlight, Order, OrderType, PaymentStatus, OrderItemQuantity, ShippingStatus, ProductPhoto, TransactionType
 import requests
 import random
 import django.contrib.auth
@@ -24,6 +24,66 @@ import re
 
 def employee_check(user):
     return user.profile.status.status == 'employee'
+
+
+@user_passes_test(employee_check)
+def save_photo(request):
+    data = request.POST
+    print(data)
+    product = Product.objects.get(id=request.POST['product_id'])
+    new_num = product.product_photos.count() + 1
+    new_photo = ProductPhoto(
+        photo=request.FILES['image'], photo_image_number=new_num, product=product)
+    new_photo.save()
+    return HttpResponse('image saved')
+
+
+@user_passes_test(employee_check)
+def save_product_changes(request):
+    product_update = json.loads(request.body)['product']
+    type_of_update = json.loads(request.body)['type']
+    photo_remove_instructions = json.loads(
+        request.body)['photo_remove_instructions']
+    if type_of_update == 'update':
+        # print(product_update)
+        product = Product.objects.get(id=product_update['id'])
+        print(product)
+        product.title = product_update['title']
+        product.subtitle = product_update['subtitle']
+        product.action_message = product_update['action_message']
+        product.is_active = product_update['is_active']
+        product.is_display_on_website = product_update['is_display_on_website']
+        product.description = product_update['description']
+        product.description_teaser = product_update['description_teaser']
+        product.SKU_unit_description = product_update['SKU_unit_description']
+        product.SKU_min_order_qty = product_update['SKU_min_order_qty']
+        product.SKU_max_order_qty = product_update['SKU_max_order_qty']
+        product.SKU_order_in_multiples_of = product_update['SKU_order_in_multiples_of']
+        product.SKU_is_non_taxable = product_update['SKU_is_non_taxable']
+        product.SKU_is_no_shipping_charge = product_update['SKU_is_no_shipping_charge']
+        product.SKU_Prices_price_level = product_update['SKU_Prices_price_level']
+        product.SKU_Prices_price = product_update['SKU_Prices_price']
+        product.SKU_Prices_price_quantity = product_update['SKU_Prices_price_quantity']
+        product.SKU_Prices_is_inventory_on = product_update['SKU_Prices_is_inventory_on']
+        product.SKU_Prices_Inventory_current_inventory = product_update[
+            'SKU_Prices_Inventory_current_inventory']
+        product.SKU_Prices_Inventory_inventory_pool = product_update[
+            'SKU_Prices_Inventory_inventory_pool']
+        product.WineProperties_tasting_notes = product_update['WineProperties_tasting_notes']
+        product.WineProperties_wine_maker_notes = product_update['WineProperties_wine_maker_notes']
+        product.WineProperties_food_pairing_notes = product_update[
+            'WineProperties_food_pairing_notes']
+        for photo_id in photo_remove_instructions:
+            tmp_photo = ProductPhoto.objects.get(id=photo_id)
+            tmp_photo.delete()
+
+    elif type_of_update == 'new':
+        print(product_update)
+    else:
+        return HttpResponse('error')
+
+    product.save()
+    return HttpResponse('Ok')
 
 
 @user_passes_test(employee_check)

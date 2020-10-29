@@ -1,6 +1,10 @@
 {%extends 'mirmir_app/employee_base.html'%}
 {%block title%}Mirmir: Employee{%endblock%}
 {%block style%}
+<!-- bootstrap-datepicker https://cdnjs.com/libraries/bootstrap-datepicker -->
+<script src="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-datepicker/1.9.0/js/bootstrap-datepicker.min.js"
+    integrity="sha512-T/tUfKSV1bihCnd+MxKD0Hm1uBBroVYBOYSk1knyvQ9VyZJpc/ALb4P0r6ubwVPSGB2GvjeoMAJJImBG12TiaQ=="
+    crossorigin="anonymous"></script>
 <style>
     a>i:hover {
         cursor: pointer;
@@ -10,11 +14,30 @@
         display: flex;
         justify-content: flex-end;
     }
+
+    img {
+        max-height: 100px;
+    }
+
+    .image_group {
+        border: 1px solid lightgrey;
+        border-radius: 3px;
+        padding: 5px;
+    }
+
+    #container_add {
+        display: flex;
+        justify-content: flex-end;
+    }
+
+    .container_title {
+        display: flex;
+        justify-content: space-between;
+    }
 </style>
 {%endblock%}
 {%block body%}
 <h1>This is the Employee Main Page</h1>
-<h3>Here will be a list of open orders, followed by a list of active products</h3>
 <div class="container" id="app">
 
     <!-- Tab Management -->
@@ -72,15 +95,219 @@
                 <div class="modal-header">
                     <h5 class="modal-title" id="modalLabel">Product</h5>
                     <button type="button" class="close" data-dismiss="modal" aria-label="Close">
-                        <span aria-hidden="true">&times;</span>
+                        <span aria-hidden="true" @click="getActiveProducts">&times;</span>
                     </button>
                 </div>
                 <div class="modal-body">
-
+                    <form enctype="multipart/form-data">
+                        <h5>General Information</h5>
+                        <div class="form-group">
+                            <label for="product_type">Product Type</label>
+                            <input type="text" class="form-control" id="product_type"
+                                v-model="product_modal_data.product_type" disabled>
+                        </div>
+                        <div class="form-group">
+                            <label for="title">Title</label>
+                            <input type="text" class="form-control" id="title" v-model="product_modal_data.title">
+                        </div>
+                        <div class="form-group">
+                            <label for="postitle">POS Title</label>
+                            <input type="text" class="form-control" id="postitle" v-model="product_modal_data.POSTitle"
+                                disabled>
+                        </div>
+                        <div class="form-group">
+                            <label for="brand">Brand</label>
+                            <input type="text" class="form-control" id="brand" v-model="product_modal_data.brand"
+                                disabled>
+                        </div>
+                        <div class="form-group">
+                            <label for="subtitle">Subtitle</label>
+                            <input type="text" class="form-control" id="subtitle" v-model="product_modal_data.subtitle">
+                        </div>
+                        <div class="form-check">
+                            <input type="checkbox" class="form-check-input" id="is_active"
+                                v-model="product_modal_data.is_active">
+                            <label for="is_active" class="form-check-label">Active?</label>
+                        </div>
+                        <div class="form-check">
+                            <input type="checkbox" class="form-check-input" id="is_display_on_website"
+                                v-model="product_modal_data.is_display_on_website">
+                            <label for="is_display_on_website" class="form-check-label">On Website?</label>
+                        </div>
+                        <div class="form-group">
+                            <label for="description">Description</label>
+                            <textarea rows="3" class="form-control" id="description"
+                                v-model="product_modal_data.description"></textarea>
+                        </div>
+                        <div class="form-group">
+                            <label for="description_teaser">Description Teaser</label>
+                            <input type="text" class="form-control" id="description_teaser"
+                                v-model="product_modal_data.description_teaser">
+                        </div>
+                        <div class="form-group">
+                            <label for="date_added">Date Added</label>
+                            <input type="text" class="form-control" id="date_added"
+                                v-model="product_modal_data.date_added" disabled>
+                        </div>
+                        <h5>SKU Information</h5>
+                        <div class="form-group">
+                            <label for="SKU_SKU">SKU Bottling Date(YYY-MM-DD-)+(first three letters of title)</label>
+                            <input type="text" class="form-control" id="SKU_SKU" v-model="product_modal_data.SKU_SKU"
+                                disabled>
+                        </div>
+                        <div class="form-group">
+                            <label for="SKU_cost_of_good">SKU Cost of Good</label>
+                            <input type="number" min="0" step="0.01" class="form-control" id="SKU_cost_of_good"
+                                v-model="product_modal_data.SKU_cost_of_good" disabled>
+                        </div>
+                        <div class="form-group">
+                            <label for="SKU_UPC_code">SKU UPC Code</label>
+                            <input type="text" class="form-control" id="SKU_UPC_code"
+                                v-model="product_modal_data.SKU_UPC_code" disabled>
+                            <a class="btn btn-primary" @click="generateCode">Generate UPC Code</a>
+                        </div>
+                        <div class="form-group">
+                            <label for="SKU_unit_description">SKU Unit Description</label>
+                            <input type="text" class="form-control" id="SKU_unit_description"
+                                v-model="product_modal_data.SKU_unit_description">
+                        </div>
+                        <div class="form-group">
+                            <label for="SKU_min_order_qty">SKU Minimum Order Quantity</label>
+                            <input type="number" min="0" class="form-control" id="SKU_min_order_qty"
+                                v-model="product_modal_data.SKU_min_order_qty">
+                        </div>
+                        <div class="form-group">
+                            <label for="SKU_max_order_qty">SKU Maximum Order Quantity</label>
+                            <input type="number" min="0" class="form-control" id="SKU_max_order_qty"
+                                v-model="product_modal_data.SKU_max_order_qty">
+                        </div>
+                        <div class="form-group">
+                            <label for="SKU_order_in_multiples_of">SKU Order In Multiples Of</label>
+                            <input type="number" min="0" class="form-control" id="SKU_order_in_multiples_of"
+                                v-model="product_modal_data.SKU_order_in_multiples_of">
+                        </div>
+                        <div class="form-group">
+                            <label for="SKU_weight">Weight</label>
+                            <input type="number" min="0" class="form-control" id="SKU_weight"
+                                v-model="product_modal_data.SKU_weight" disabled>
+                        </div>
+                        <div class="form-check">
+                            <input type="checkbox" class="form-check-input" id="SKU_is_non_taxable"
+                                v-model="product_modal_data.SKU_is_non_taxable">
+                            <label for="SKU_is_non_taxable" class="form-check-label">Taxable?</label>
+                        </div>
+                        <div class="form-check">
+                            <input type="checkbox" class="form-check-input" id="SKU_is_no_shipping_charge"
+                                v-model="product_modal_data.SKU_is_no_shipping_charge">
+                            <label for="SKU_is_no_shipping_charge" class="form-check-label">Shipping Charge?</label>
+                        </div>
+                        <div class="form-group">
+                            <label for="SKU_Prices_price_level">SKU Prices Price Level</label>
+                            <input type="text" class="form-control" id="SKU_Prices_price_level"
+                                v-model="product_modal_data.SKU_Prices_price_level" disabled>
+                        </div>
+                        <div class="form-group">
+                            <label for="SKU_Prices_price">SKU Prices Price</label>
+                            <input type="number" min="0" step="0.01" class="form-control" id="SKU_Prices_price"
+                                v-model="product_modal_data.SKU_Prices_price">
+                        </div>
+                        <div class="form-group">
+                            <label for="SKU_Prices_price_quantity">SKU Price Quantity</label>
+                            <input type="number" min="0" class="form-control" id="SKU_Prices_price_quantity"
+                                v-model="product_modal_data.SKU_Prices_price_quantity">
+                        </div>
+                        <h5>Inventory Data</h5>
+                        <div class="form-check">
+                            <input type="checkbox" class="form-check-input" id="SKU_Prices_is_inventory_on"
+                                v-model="product_modal_data.SKU_Prices_is_inventory_on">
+                            <label for="SKU_Prices_is_inventory_on" class="form-check-label">Inventory?</label>
+                        </div>
+                        <div class="form-group">
+                            <label for="SKU_Prices_Inventory_current_inventory">Inventory</label>
+                            <input type="number" min="0" class="form-control"
+                                id="SKU_Prices_Inventory_current_inventory"
+                                v-model="product_modal_data.SKU_Prices_Inventory_current_inventory">
+                        </div>
+                        <div class="form-group">
+                            <label for="SKU_Prices_Inventory_inventory_pool">Inventory Pool</label>
+                            <input type="number" min="0" class="form-control" id="SKU_Prices_Inventory_inventory_pool"
+                                v-model="product_modal_data.SKU_Prices_Inventory_inventory_pool">
+                        </div>
+                        <h5>Wine Property Data</h5>
+                        <div class="form-group">
+                            <label for="WineProperties_bottles_in_case">Bottle In Case</label>
+                            <input type="number" min="0" class="form-control" id="WineProperties_bottles_in_case"
+                                v-model="product_modal_data.WineProperties_bottles_in_case" disabled>
+                        </div>
+                        <div class="form-group">
+                            <label for="WineProperties_bottle_size_in_ml">Bottle Size (ml)</label>
+                            <input type="number" min="0" class="form-control" id="WineProperties_bottle_size_in_ml"
+                                v-model="product_modal_data.WineProperties_bottle_size_in_ml" disabled>
+                        </div>
+                        <div class="form-group">
+                            <label for="WineProperties_alcohol">Alcohol (% ABV)</label>
+                            <input type="text" class="form-control" id="WineProperties_alcohol"
+                                v-model="product_modal_data.WineProperties_alcohol" disabled>
+                        </div>
+                        <div class="form-group">
+                            <label for="bottling_date">Bottling Date</label>
+                            <div class="input-group date" data-provide="datepicker" data-target-input="nearest">
+                                <input type="text" v-model="product_modal_data.WineProperties_bottling_date"
+                                    name="bottling_date" class="form-control" placeholder="MM/DD/YYYY" required
+                                    disabled>
+                                <div class="input-group-append" data-target="#bottling_date" data-toggle="datepicker">
+                                    <div class="input-group-text"><i class="fa fa-calendar"></i></div>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="form-group">
+                            <label for="WineProperties_tasting_notes">Tasting Notes</label>
+                            <textarea rows="6" class="form-control" id="WineProperties_tasting_notes"
+                                v-model="product_modal_data.WineProperties_tasting_notes"></textarea>
+                        </div>
+                        <div class="form-group">
+                            <label for="WineProperties_wine_maker_notes">Maker's Notes</label>
+                            <textarea rows="6" class="form-control" id="WineProperties_wine_maker_notes"
+                                v-model="product_modal_data.WineProperties_wine_maker_notes"></textarea>
+                        </div>
+                        <div class="form-group">
+                            <label for="WineProperties_food_pairing_notes">Pairing Notes</label>
+                            <textarea rows="6" class="form-control" id="WineProperties_food_pairing_notes"
+                                v-model="product_modal_data.WineProperties_food_pairing_notes"></textarea>
+                        </div>
+                        <h5>Photo Data</h5>
+                        <div class="form-group image_group" v-for="(photo, index) in product_modal_data.product_photos">
+                            <div class="container container_title">
+                                <h6>Photo [[photo.photo_image_number]]</h6>
+                                <a @click="removePhoto(index)" class="btn btn-danger"><i class="fas fa-times"></i></a>
+                            </div>
+                            <div class="container">
+                                <img :src="photo.photo">
+                            </div>
+                            <input type="file" class="form-control-file" accept="image/*" :id="'photo_' + index"
+                                disabled>
+                            <label for="photo_image_number">Photo Display Number</label>
+                            <input type="number" min="1" id="photo_image_number" class="form-control"
+                                v-model="photo.photo_image_number" @input="newImageNumber(index)" disabled>
+                        </div>
+                        <div class="form-group image_group" v-show="new_photos">
+                            <div class="container container_title">
+                                <h6>New Photo- Add One At A Time</h6>
+                                <a @click="noNewPhoto" class="btn btn-danger"><i class="fas fa-times"></i></a>
+                            </div>
+                            <input type="file" class="form-control-file" accept="image/*" id="photo_data">
+                        </div>
+                        <div class="container" id="container_add">
+                            <a @click="addNewPhoto" class="btn btn-primary"><i class="fas fa-plus"
+                                    :disabled="!new_photos"></i></a>
+                        </div>
+                    </form>
                 </div>
                 <div class="modal-footer">
-                    <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
-                    <button type="button" class="btn btn-primary" data-dismiss="modal">Save
+                    <button type="button" class="btn btn-secondary" data-dismiss="modal"
+                        @click="getActiveProducts">Close</button>
+                    <button type="button" class="btn btn-primary" data-dismiss="modal"
+                        @click="saveProductChanges(product_modal_data.id)">Save
                         changes</button>
                 </div>
             </div>
@@ -92,6 +319,11 @@
 
 {%block javascript%}
 <script>
+    $(function () {
+        $('.datepicker').datepicker({
+            format: 'yyyy-mm-dd',
+        })
+    })
     let app = new Vue({
         el: '#app',
         delimiters: ['[[', ']]'],
@@ -139,19 +371,17 @@
             },
             active_products_in_tab: [],
             product_modal_data: {
+                id: '',
                 product_type: '',
                 title: '',
                 POSTitle: '',
                 brand: '',
-                max_length: '',
                 subtitle: '',
                 action_message: '',
-                max_length: '',
                 is_active: '',
                 is_display_on_website: '',
                 description: '',
                 description_teaser: '',
-                max_length: '',
                 date_added: '',
                 date_modified: '',
                 SKU_SKU: '',
@@ -178,9 +408,13 @@
                 WineProperties_tasting_notes: '',
                 WineProperties_wine_maker_notes: '',
                 WineProperties_food_pairing_notes: '',
+                product_photos: [],
+                product_selected: '',
             },
             selected: 'open_orders',
             type_of_update: '',
+            new_photos: false,
+            photo_remove_instructions: []
         },
         methods: {
             //////////////////////////////////////////////////////
@@ -196,10 +430,71 @@
                 })
             },
             loadProductModal: function (i) {
-                this.product_modal_data = this.open_orders[i]
+                this.product_modal_data = this.active_products_in_tab[i]
+                this.product_selected = i
                 this.type_of_update = 'update'
             },
+            generateCode: function () {
+                this.product_modal_data.SKU_UPC_code = Math.floor(Math.random() * 9999999999) + (10000000000 + Math.floor(Math.random() * 10))
+            },
+            addNewPhoto: function () {
+                this.new_photos = true
+            },
+            noNewPhoto: function () {
+                this.new_photos = false
+            },
+            changedPhoto: function (i) {
+                this.product_modal_data.product_photos[i].changed = true
+            },
+            removePhoto: function (i) {
+                this.photo_remove_instructions.push(this.product_modal_data.product_photos[i].id)
+                this.product_modal_data.product_photos.splice(i, 1)
+            },
+            savePhoto: function (id) {
+                let image_data = new FormData()
+                let image_file = document.querySelector('#photo_data')
+                image_data.append("image", image_file.files[0])
+                image_data.append("product_id", id)
+                axios({
+                    url: '{% url "mirmir_app:save_photo" %}',
+                    method: 'POST',
+                    data: image_data,
+                    headers: {
+                        'X-CSRFToken': '{{ csrf_token }}',
+                    }
+                }).then(response => {
+                    console.log(response.data)
+                    this.new_photos = false
+                    this.getActiveProducts()
+                    this.loadModal(this.product_selected)
 
+                })
+            },
+            saveProductChanges: function (id) {
+                axios({
+                    url: '{% url "mirmir_app:save_product_changes" %}',
+                    method: 'POST',
+                    headers: {
+                        'X-CSRFToken': '{{ csrf_token }}',
+                    },
+                    data: {
+                        product: this.product_modal_data,
+                        type: this.type_of_update,
+                        photo_remove_instructions: this.photo_remove_instructions,
+                    }
+                }).then(response => {
+                    console.log(response.data)
+                    if (this.new_photos) {
+                        this.savePhoto(id)
+                    } else {
+                        this.getActiveProducts()
+                        this.loadModal(this.product_selected)
+                    }
+                })
+            },
+            newImageNumber: function (i) {
+                this.product_modal_data.product_photos.new_number = true
+            },
             //////////////////////////////////////////////////////
             //                Order Methods                     //
             //////////////////////////////////////////////////////
