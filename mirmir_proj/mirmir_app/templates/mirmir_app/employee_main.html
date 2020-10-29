@@ -85,6 +85,10 @@
                 </tr>
             </tbody>
         </table>
+        <div class="container" id="orders_button_div">
+            <a @click="newProduct" data-toggle="modal" data-target="#product_modal" class="btn-btn-primary"><i
+                    class="fas fa-plus"></i></a>
+        </div>
     </div>
 
     <!-- Active Product Modal -->
@@ -113,12 +117,12 @@
                         <div class="form-group">
                             <label for="postitle">POS Title</label>
                             <input type="text" class="form-control" id="postitle" v-model="product_modal_data.POSTitle"
-                                disabled>
+                                :disabled="type_of_update == 'update'">
                         </div>
                         <div class="form-group">
                             <label for="brand">Brand</label>
                             <input type="text" class="form-control" id="brand" v-model="product_modal_data.brand"
-                                disabled>
+                                :disabled="type_of_update == 'update'">
                         </div>
                         <div class="form-group">
                             <label for="subtitle">Subtitle</label>
@@ -145,6 +149,8 @@
                                 v-model="product_modal_data.description_teaser">
                         </div>
                         <div class="form-group">
+                            <div class="container" v-show="type_of_update == 'new'">Date Will Automatically Be Generated
+                                On Processing</div>
                             <label for="date_added">Date Added</label>
                             <input type="text" class="form-control" id="date_added"
                                 v-model="product_modal_data.date_added" disabled>
@@ -153,18 +159,19 @@
                         <div class="form-group">
                             <label for="SKU_SKU">SKU Bottling Date(YYY-MM-DD-)+(first three letters of title)</label>
                             <input type="text" class="form-control" id="SKU_SKU" v-model="product_modal_data.SKU_SKU"
-                                disabled>
+                                :disabled="type_of_update == 'update'">
                         </div>
                         <div class="form-group">
                             <label for="SKU_cost_of_good">SKU Cost of Good</label>
                             <input type="number" min="0" step="0.01" class="form-control" id="SKU_cost_of_good"
-                                v-model="product_modal_data.SKU_cost_of_good" disabled>
+                                v-model="product_modal_data.SKU_cost_of_good" :disabled="type_of_update == 'update'">
                         </div>
                         <div class="form-group">
                             <label for="SKU_UPC_code">SKU UPC Code</label>
                             <input type="text" class="form-control" id="SKU_UPC_code"
                                 v-model="product_modal_data.SKU_UPC_code" disabled>
-                            <a class="btn btn-primary" @click="generateCode">Generate UPC Code</a>
+                            <a class="btn btn-primary" @click="generateCode"
+                                :disabled="type_of_update == 'update'">Generate UPC Code</a>
                         </div>
                         <div class="form-group">
                             <label for="SKU_unit_description">SKU Unit Description</label>
@@ -189,7 +196,7 @@
                         <div class="form-group">
                             <label for="SKU_weight">Weight</label>
                             <input type="number" min="0" class="form-control" id="SKU_weight"
-                                v-model="product_modal_data.SKU_weight" disabled>
+                                v-model="product_modal_data.SKU_weight" :disabled="type_of_update == 'update'">
                         </div>
                         <div class="form-check">
                             <input type="checkbox" class="form-check-input" id="SKU_is_non_taxable"
@@ -204,7 +211,8 @@
                         <div class="form-group">
                             <label for="SKU_Prices_price_level">SKU Prices Price Level</label>
                             <input type="text" class="form-control" id="SKU_Prices_price_level"
-                                v-model="product_modal_data.SKU_Prices_price_level" disabled>
+                                v-model="product_modal_data.SKU_Prices_price_level"
+                                :disabled="type_of_update == 'update'" placeholder="default is 'Normal'">
                         </div>
                         <div class="form-group">
                             <label for="SKU_Prices_price">SKU Prices Price</label>
@@ -237,24 +245,29 @@
                         <div class="form-group">
                             <label for="WineProperties_bottles_in_case">Bottle In Case</label>
                             <input type="number" min="0" class="form-control" id="WineProperties_bottles_in_case"
-                                v-model="product_modal_data.WineProperties_bottles_in_case" disabled>
+                                v-model="product_modal_data.WineProperties_bottles_in_case"
+                                :disabled="type_of_update == 'update'">
                         </div>
                         <div class="form-group">
                             <label for="WineProperties_bottle_size_in_ml">Bottle Size (ml)</label>
                             <input type="number" min="0" class="form-control" id="WineProperties_bottle_size_in_ml"
-                                v-model="product_modal_data.WineProperties_bottle_size_in_ml" disabled>
+                                v-model="product_modal_data.WineProperties_bottle_size_in_ml"
+                                :disabled="type_of_update == 'update'">
                         </div>
                         <div class="form-group">
                             <label for="WineProperties_alcohol">Alcohol (% ABV)</label>
                             <input type="text" class="form-control" id="WineProperties_alcohol"
-                                v-model="product_modal_data.WineProperties_alcohol" disabled>
+                                v-model="product_modal_data.WineProperties_alcohol"
+                                :disabled="type_of_update == 'update'">
                         </div>
                         <div class="form-group">
                             <label for="bottling_date">Bottling Date</label>
                             <div class="input-group date" data-provide="datepicker" data-target-input="nearest">
-                                <input type="text" v-model="product_modal_data.WineProperties_bottling_date"
-                                    name="bottling_date" class="form-control" placeholder="MM/DD/YYYY" required
-                                    disabled>
+                                <input type="text" id="bottling_date"
+                                    v-model="product_modal_data.WineProperties_bottling_date" name="bottling_date"
+                                    class="form-control" placeholder="MM/DD/YYYY" required
+                                    :disabled="type_of_update == 'update'"
+                                    @input="product_modal_data.WineProperties_bottling_date = $event.target.value; alert('!!!')">
                                 <div class="input-group-append" data-target="#bottling_date" data-toggle="datepicker">
                                     <div class="input-group-text"><i class="fa fa-calendar"></i></div>
                                 </div>
@@ -306,8 +319,7 @@
                 <div class="modal-footer">
                     <button type="button" class="btn btn-secondary" data-dismiss="modal"
                         @click="getActiveProducts">Close</button>
-                    <button type="button" class="btn btn-primary" data-dismiss="modal"
-                        @click="saveProductChanges(product_modal_data.id)">Save
+                    <button type="button" class="btn btn-primary" data-dismiss="modal" @click="saveProductChanges">Save
                         changes</button>
                 </div>
             </div>
@@ -321,7 +333,7 @@
 <script>
     $(function () {
         $('.datepicker').datepicker({
-            format: 'yyyy-mm-dd',
+            format: 'yyyy-MM-dd',
         })
     })
     let app = new Vue({
@@ -470,7 +482,7 @@
 
                 })
             },
-            saveProductChanges: function (id) {
+            saveProductChanges: function () {
                 axios({
                     url: '{% url "mirmir_app:save_product_changes" %}',
                     method: 'POST',
@@ -485,7 +497,7 @@
                 }).then(response => {
                     console.log(response.data)
                     if (this.new_photos) {
-                        this.savePhoto(id)
+                        this.savePhoto(response.data)
                     } else {
                         this.getActiveProducts()
                         this.loadModal(this.product_selected)
@@ -494,6 +506,47 @@
             },
             newImageNumber: function (i) {
                 this.product_modal_data.product_photos.new_number = true
+            },
+            newProduct: function () {
+                this.type_of_update = 'new'
+                this.product_modal_data = {
+                    id: '',
+                    product_type: 'Product',
+                    title: 'ActiveMead5', //
+                    POSTitle: 'mead-5', //
+                    brand: 'Mirmir\'s Well Meadery',
+                    subtitle: 'Mirmir',
+                    action_message: '',
+                    is_active: true,
+                    is_display_on_website: true,
+                    description: 'Pursing your lips and inhaling some air while the wine is still on your palate is also a nice way to spread the more complex flavors through your sinuses. The word "sauvignon" is believed to be derived from the French sauvage meaning "wild." The classic profile of Cabernet Sauvignon tends to be full-bodied with high tannins and noticeable acidity that contributes to the wine\'s aging potential. Some whites age better in stainless steel. Chenin blanc boasts a bouquet of fresh pears, saffron, jasmine, ginger, and quince. If a husband found his wife drinking wine in the early Roman times, he was at liberty to kill her.',
+                    description_teaser: 'Pursing your lips and inhaling some air while the wine is still on your palate is also a nice way to spread the more complex flavors through your sinuses.',
+                    SKU_SKU: '020-10-29-ACT',
+                    SKU_cost_of_good: 29.25,
+                    SKU_UPC_code: '',
+                    SKU_unit_description: 'mead5',
+                    SKU_min_order_qty: 1,
+                    SKU_max_order_qty: 1,
+                    SKU_order_in_multiples_of: 1,
+                    SKU_weight: 5,
+                    SKU_is_non_taxable: false,
+                    SKU_is_no_shipping_charge: false,
+                    SKU_Prices_price_level: 'Normal',
+                    SKU_Prices_price: 29.25,
+                    SKU_Prices_price_quantity: 1,
+                    SKU_Prices_is_inventory_on: true,
+                    SKU_Prices_Inventory_current_inventory: 15,
+                    SKU_Prices_Inventory_inventory_pool: 15,
+                    WineProperties_bottles_in_case: 0,
+                    WineProperties_bottle_size_in_ml: 300,
+                    WineProperties_type: '',
+                    WineProperties_alcohol: '13.5% ABV',
+                    WineProperties_bottling_date: '',
+                    WineProperties_tasting_notes: 'In California, the main stylistic difference in Cabernet Sauvignon is between hillside / mountain vineyards and those on flatter terrain like valley floors. When at a wine tasting event, one is not frowned upon for spitting wine out. Grand Cru wines are produced from the small number of the best vineyard sites in the Côte d\'Or.',
+                    WineProperties_wine_maker_notes: 'Sparkling reds include Lambrusco, from Italy, and Brachetto D\'Acqui. Fruity flavors, with aromas of rose petals, peaches, and allspice. Though you\'ll commonly hear grapes referred to as "fruit," botanists technically classify grapes as berries since each fruit forms from a single flower. Overripe grapes can make the wine taste burnt.',
+                    WineProperties_food_pairing_notes: 'Swine and wine pair well. Uncork that thing, decanter the contents. All grape juice is white, only the skins of purple grapes contain the dark pigment. Toasting was originally the practice of dropping toasted bread into wine to temper excessive acidity. Acidity is a key element in a wine\'s longevity.',
+                    product_photos: [],
+                }
             },
             //////////////////////////////////////////////////////
             //                Order Methods                     //

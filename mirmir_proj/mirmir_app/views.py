@@ -76,9 +76,52 @@ def save_product_changes(request):
         for photo_id in photo_remove_instructions:
             tmp_photo = ProductPhoto.objects.get(id=photo_id)
             tmp_photo.delete()
+        return HttpResponse(product_update['id'])
 
     elif type_of_update == 'new':
         print(product_update)
+        bottling_date = re.split('/', product_update['bottline_date'])
+        final_bottling_date = bottling_date[2] + '-' + \
+            bottling_date[0] + '-' + bottling_date[1]
+        new_product = Product(
+            product_type=product_update['product_type'],
+            title=product_update['title'],
+            POSTitle=product_update['POSTitle'],
+            brand=product_update['brand'],
+            subtitle=product_update['subtitle'],
+            action_message=product_update['action_message'],
+            is_active=product_update['is_active'],
+            is_display_on_website=product_update['is_display_on_website'],
+            description=product_update['description'],
+            description_teaser=product_update['description_teaser'],
+            SKU_SKU=product_update['SKU_SKU'],
+            SKU_cost_of_good=product_update['SKU_cost_of_good'],
+            SKU_UPC_code=product_update['SKU_UPC_code'],
+            SKU_unit_description=product_update['SKU_unit_description'],
+            SKU_min_order_qty=product_update['SKU_min_order_qty'],
+            SKU_max_order_qty=product_update['SKU_max_order_qty'],
+            SKU_order_in_multiples_of=product_update['SKU_order_in_multiples_of'],
+            SKU_weight=product_update['SKU_weight'],
+            SKU_is_non_taxable=product_update['SKU_is_non_taxable'],
+            SKU_is_no_shipping_charge=product_update['SKU_is_no_shipping_charge'],
+            SKU_Prices_price_level=product_update['SKU_Prices_price_level'],
+            SKU_Prices_price=product_update['SKU_Prices_price'],
+            SKU_Prices_price_quantity=product_update['SKU_Prices_price_quantity'],
+            SKU_Prices_is_inventory_on=product_update['SKU_Prices_is_inventory_on'],
+            SKU_Prices_Inventory_current_inventory=product_update[
+                'SKU_Prices_Inventory_current_inventory'],
+            SKU_Prices_Inventory_inventory_pool=product_update['SKU_Prices_Inventory_inventory_pool'],
+            WineProperties_bottles_in_case=product_update['WineProperties_bottles_in_case'],
+            WineProperties_bottle_size_in_ml=product_update['WineProperties_bottle_size_in_ml'],
+            WineProperties_type=product_update['WineProperties_type'],
+            WineProperties_alcohol=product_update['WineProperties_alcohol'],
+            WineProperties_bottling_date=final_bottling_date,
+            WineProperties_tasting_notes=product_update['WineProperties_tasting_notes'],
+            WineProperties_wine_maker_notes=product_update['WineProperties_wine_maker_notes'],
+            WineProperties_food_pairing_notes=product_update['WineProperties_food_pairing_notes']
+        )
+        new_product.save()
+        return HttpResponse(new_product.id)
     else:
         return HttpResponse('error')
 
