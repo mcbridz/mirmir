@@ -191,7 +191,6 @@
             </div>
             <div class="collapse navbar-collapse" id="acct_cart">
                 <span class="nav-item" id="customer">
-                    <a href="" class="nav-link c-nav">Your Account</a>
                     <a class="btn nav-link" href="{% url 'mirmir_app:logout' %}" tabindex="-1" aria-disabled="true">Log
                         Out</a>
                 </span>
@@ -202,13 +201,13 @@
             <span id="mobile_hamburger" onclick="openNav()"><i class="fas fa-bars"></i></span>
             <div class="sidenav" id="mobile_nav">
                 <a href="javascript:void(0)" class="closebtn" onclick="closeNav()">&times;</a>
+                <a class="nav-link" href="{% url 'mirmir_app:employee_main' %}">Orders and Product Management</a>
+                <a class="nav-link" href="{% url 'mirmir_app:main_page_management' %}">Main Page Management</a>
+                <a class="nav-link" href="#">About Us Page Management</a>
+                <a class="nav-link" href="#">Search</a>
+                <a class="nav-link" href="#">Archive</a>
                 <a class="nav-link" href="{% url 'mirmir_app:logout' %}" tabindex="-1" aria-disabled="true">Log
                     Out</a>
-                <a href="" class="nav-link c-nav">Your Account</a>
-                <a class="nav-link" href="">Mead Club</a>
-                <a class="nav-link" href="">Archive</a>
-                <a class="nav-link" href="">About Mirmir's Well Meadery</a>
-                <a class="nav-link" href="{% url 'mirmir_app:login' %}">Login</a>
             </div>
         </div>
     </nav>

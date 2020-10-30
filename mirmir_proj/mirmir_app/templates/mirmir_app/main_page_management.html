@@ -25,6 +25,17 @@
         display: flex;
         justify-content: flex-end;
     }
+
+    .toast.show {
+        display: block;
+        position: fixed;
+        top: 25%;
+        left: 12%;
+    }
+
+    .toast {
+        display: none;
+    }
 </style>
 {%endblock%}
 {%block body%}
@@ -32,8 +43,43 @@
     <div id="page-label">
         <h1>Main Page Management</h1>
     </div>
+    <div class="toast" id="update_carousel_toast">
+        <div class="toast-body">
+            Carousel Slide Updated
+        </div>
+    </div>
+    <div class="toast" id="delete_carousel_toast">
+        <div class="toast-body">
+            Carousel Slide Deleted
+        </div>
+    </div>
+    <div class="toast" id="new_carousel_toast">
+        <div class="toast-body">
+            New Carousel Slide Added
+        </div>
+    </div>
 
+    <div class="toast" id="update_page_highlight_toast">
+        <div class="toast-body">
+            Highlight Updated
+        </div>
+    </div>
+    <div class="toast" id="delete_page_highlight_toast">
+        <div class="toast-body">
+            Highlight Deleted
+        </div>
+    </div>
+    <div class="toast" id="new_page_highlight_toast">
+        <div class="toast-body">
+            New Highlight Added
+        </div>
+    </div>
 
+    <div class="toast" id="warning_toast">
+        <div class="toast-body">
+            Warning Updated
+        </div>
+    </div>
 
     <!-- Tab Selection -->
     <ul class="nav nav-pills nav-fill justify-content-center">
@@ -251,7 +297,11 @@
                     console.log(response.data)
                     if (this.tmp_data['type'] == 'slide') {
                         this.carousele_data = response.data['slides']
+                        $('#delete_carousel_toast').toast({ delay: 2000 })
+                        $('#delete_carousel_toast').toast('show')
                     } else {
+                        $('#delete_page_highlight_toast').toast({ delay: 2000 })
+                        $('#delete_page_highlight_toast').toast('show')
                         this.highlight_data = response.data['highlight_data']
                     }
                     this.clearTmpData()
@@ -276,6 +326,8 @@
                 }).then(response => {
                     console.log(response.data)
                     this.getWarning()
+                    $('#warning_toast').toast({ delay: 2000 })
+                    $('#warning_toast').toast('show')
                     console.log('Exiting saveWarning')
                 })
             },
@@ -308,6 +360,8 @@
                 }).then(response => {
                     console.log(response.data)
                     this.getHighlights()
+                    $('#update_page_highlight_toast').toast({ delay: 2000 })
+                    $('#update_page_highlight_toast').toast('show')
                     console.log('Exiting saveHighlight')
                 })
             },
@@ -339,6 +393,8 @@
                     this.highlight_data = response.data['highlight_data']
                     this.new_highlight['text'] = ''
                     $('#newHighlightModal').modal('hide')
+                    $('#new_page_highlight_toast').toast({ delay: 2000 })
+                    $('#new_page_highlight_toast').toast('show')
                     console.log('Exiting saveNewHighlight')
                 })
 
@@ -374,6 +430,8 @@
                 }).then(response => {
                     console.log(response.data)
                     this.getCarousele()
+                    $('#update_carousel_toast').toast({ delay: 2000 })
+                    $('#update_carousel_toast').toast('show')
                     console.log('Exiting saveSlide')
                 })
             },
@@ -406,6 +464,8 @@
                     this.new_slide.caption_title = ''
                     $('#addSlideModal').modal('hide')
                     this.getCarousele()
+                    $('#new_carousel_toast').toast({ delay: 2000 })
+                    $('#new_carousel_toast').toast('show')
                 })
                 console.log('Exiting addNewSlide')
             },

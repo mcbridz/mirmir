@@ -9,26 +9,29 @@
 </style>
 {%endblock%}
 {%block body%}
-<form id="form_input" action="#!" method="post">
-    <input type="hidden" id="recaptcha" name="g-recaptcha-response">
-    {% csrf_token %}
-    <label for="username" class="requiredField">Username <span class="asteriskField">*</span></label>
-    <div>
-        <input class="textinput textInput form-control" type="text" name="username" required maxlength="100">
-    </div>
-    <label for="password" class="requiredField">Password <span class="asteriskField">*</label>
-    <div>
-        <input class="form-control" type="password" oninput="password_check()" name="password" id="password" required>
-    </div>
-    <label for="password_v" class="requiredField">Re-Type Password <span class="asteriskField">*</label>
-    <div>
-        <input class="form-control" type="password" oninput="password_check()" name="password_v" id="password_v"
-            required>
-    </div>
-    {{ form|crispy }}
-    <button type="submit" id="submit_btn" class="btn btn-primary g-recaptcha" data-sitekey="reCAPTCHA_site_key"
-        data-callback='onSubmit'>Register!</button>
-</form>
+<div class="container">
+    <form id="form_input" action="#!" method="post">
+        <input type="hidden" id="recaptcha" name="g-recaptcha-response">
+        {% csrf_token %}
+        <label for="username" class="requiredField">Username <span class="asteriskField">*</span></label>
+        <div>
+            <input class="textinput textInput form-control" type="text" name="username" required maxlength="100">
+        </div>
+        <label for="password" class="requiredField">Password <span class="asteriskField">*</label>
+        <div>
+            <input class="form-control" type="password" oninput="password_check()" name="password" id="password"
+                required>
+        </div>
+        <label for="password_v" class="requiredField">Re-Type Password <span class="asteriskField">*</label>
+        <div>
+            <input class="form-control" type="password" oninput="password_check()" name="password_v" id="password_v"
+                required>
+        </div>
+        {{ form|crispy }}
+        <button type="submit" id="submit_btn" class="btn btn-primary g-recaptcha" data-sitekey="reCAPTCHA_site_key"
+            data-callback='onSubmit'>Register!</button>
+    </form>
+</div>
 
 
 {%endblock%}

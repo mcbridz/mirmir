@@ -396,6 +396,9 @@ def index(request):
 
 
 def main(request):
+    if request.user.is_authenticated:
+        if request.user.profile.status.status == 'employee':
+            return HttpResponseRedirect(reverse('mirmir_app:employee_main'))
     meads = Product.objects.filter(is_display_on_website=True)
     slides = CarouselSlide.objects.all()
     warning = MainPageWarning.objects.get(id=1)

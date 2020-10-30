@@ -345,7 +345,7 @@ class Order(models.Model):
         order_output = []
         for order in orders:
             order_output.append({
-                "contact": order.contact.username.username,
+                "contact": "Guest Checkout" if order.contact is None else order.contact.username.username,
                 "order_type": order.order_type.id,
                 "order_number": order.order_number,
                 "order_date": order.order_date.strftime('%m/%d/%Y'),

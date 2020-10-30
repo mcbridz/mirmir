@@ -125,6 +125,7 @@ USE_TZ = True
 
 STATIC_URL = '/static/'
 
+LOGIN_URL = '/login/'
 
 # reCAPTCHA settings
 RECAPTCHA_SITE_KEY = '6LdLbdQZAAAAAFPUDUmXHIDFo7tjwHyUDb40W-lG'
