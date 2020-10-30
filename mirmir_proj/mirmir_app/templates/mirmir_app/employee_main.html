@@ -1,10 +1,6 @@
 {%extends 'mirmir_app/employee_base.html'%}
 {%block title%}Mirmir: Employee{%endblock%}
 {%block style%}
-<!-- bootstrap-datepicker https://cdnjs.com/libraries/bootstrap-datepicker -->
-<script src="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-datepicker/1.9.0/js/bootstrap-datepicker.min.js"
-    integrity="sha512-T/tUfKSV1bihCnd+MxKD0Hm1uBBroVYBOYSk1knyvQ9VyZJpc/ALb4P0r6ubwVPSGB2GvjeoMAJJImBG12TiaQ=="
-    crossorigin="anonymous"></script>
 <style>
     a>i:hover {
         cursor: pointer;
@@ -263,14 +259,10 @@
                         <div class="form-group">
                             <label for="bottling_date">Bottling Date</label>
                             <div class="input-group date" data-provide="datepicker" data-target-input="nearest">
-                                <input type="text" id="bottling_date"
+                                <input type="date" id="bottling_date"
                                     v-model="product_modal_data.WineProperties_bottling_date" name="bottling_date"
                                     class="form-control" placeholder="MM/DD/YYYY" required
-                                    :disabled="type_of_update == 'update'"
-                                    @input="product_modal_data.WineProperties_bottling_date = $event.target.value; alert('!!!')">
-                                <div class="input-group-append" data-target="#bottling_date" data-toggle="datepicker">
-                                    <div class="input-group-text"><i class="fa fa-calendar"></i></div>
-                                </div>
+                                    :disabled="type_of_update == 'update'">
                             </div>
                         </div>
                         <div class="form-group">
@@ -331,11 +323,11 @@
 
 {%block javascript%}
 <script>
-    $(function () {
-        $('.datepicker').datepicker({
-            format: 'yyyy-MM-dd',
-        })
-    })
+    // $(function () {
+    //     $('.datepicker').datepicker({
+    //         format: 'yyyy-MM-dd',
+    //     })
+    // })
     let app = new Vue({
         el: '#app',
         delimiters: ['[[', ']]'],
@@ -501,6 +493,7 @@
                     } else {
                         this.getActiveProducts()
                         this.loadModal(this.product_selected)
+                        this.$forceUpdate()
                     }
                 })
             },

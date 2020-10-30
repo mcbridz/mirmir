@@ -76,13 +76,14 @@ def save_product_changes(request):
         for photo_id in photo_remove_instructions:
             tmp_photo = ProductPhoto.objects.get(id=photo_id)
             tmp_photo.delete()
+        product.save()
         return HttpResponse(product_update['id'])
 
     elif type_of_update == 'new':
         print(product_update)
-        bottling_date = re.split('/', product_update['bottline_date'])
-        final_bottling_date = bottling_date[2] + '-' + \
-            bottling_date[0] + '-' + bottling_date[1]
+        # bottling_date = re.split('/', product_update['bottling_date'])
+        # final_bottling_date = bottling_date[2] + '-' + \
+        #     bottling_date[0] + '-' + bottling_date[1]
         new_product = Product(
             product_type=product_update['product_type'],
             title=product_update['title'],
@@ -115,7 +116,7 @@ def save_product_changes(request):
             WineProperties_bottle_size_in_ml=product_update['WineProperties_bottle_size_in_ml'],
             WineProperties_type=product_update['WineProperties_type'],
             WineProperties_alcohol=product_update['WineProperties_alcohol'],
-            WineProperties_bottling_date=final_bottling_date,
+            WineProperties_bottling_date=product_update['WineProperties_bottling_date'],
             WineProperties_tasting_notes=product_update['WineProperties_tasting_notes'],
             WineProperties_wine_maker_notes=product_update['WineProperties_wine_maker_notes'],
             WineProperties_food_pairing_notes=product_update['WineProperties_food_pairing_notes']
