@@ -35,9 +35,20 @@ class Contact(models.Model):
     birthday = models.DateField()
     status = models.ForeignKey(
         StatusField, on_delete=models.PROTECT, related_name='profile', default=2)
+    email_address_confirmed = models.BooleanField(default=False)
 
     def __str__(self):
         return self.last_name + ', ' + self.first_name
+
+    class EmailConfirmation(models.Model):
+        user = models.ForeignKey(
+            User, on_delete=models.PROTECT, related_name='email_confirmations')
+        code = models.CharField(max_length=10)
+        date_created = models.DateTimeField(auto_now_add=True)
+        date_confirmed = models.DateTimeField(null=True, blank=True)
+
+        def __str__(self):
+            return self.user.username + ' ' + self.code
 
 ###############################################
 #               Product Models                #

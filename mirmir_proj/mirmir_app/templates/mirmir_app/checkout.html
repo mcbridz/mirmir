@@ -543,7 +543,28 @@
                     // console.log('checkFilledForm is returning ' + truth)
                     this.saveFormData()
                     this.filled_form = truth
-                }
+                },
+                get_user_data_for_checkout: function () {
+                    axios({
+                        url: '{% url "mirmir_app:get_user_data_for_checkout" %}',
+                        method: 'GET'
+                    }).then(response => {
+                        console.log(response)
+                        // this.order.billing = response.data['billing']
+                        this.order.billing = {
+                            first_name: response.data['billing'].first_name,
+                            last_name: response.data['billing'].last_name,
+                            company: response.data['billing'].company,
+                            address: '',
+                            address2: '',
+                            city: response.data['billing'].city,
+                            state: response.data['billing'].state,
+                            zip_code: response.data['billing'].zip_code,
+                            birthday: response.data['billing'].birthday,
+                            email: response.data['billing'].email,
+                        }
+                    })
+                },
             },
             calculated: function () {
 
@@ -562,12 +583,13 @@
                 if (order_data === null) {
                     console.log('null')
                     this.saveFormData()
-                    return
                 } else {
                     console.log('not null')
                     this.order = order_data
                 }
+                this.get_user_data_for_checkout()
                 this.checkFilledForm()
+                this.$forceUpdate()
             }
         })
     </script>

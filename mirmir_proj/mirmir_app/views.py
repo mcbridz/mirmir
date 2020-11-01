@@ -16,11 +16,12 @@ from .forms import ContactForm
 from . import utilities
 import json
 import re
-
+from datetime import datetime
 
 ####################################
 #         Employee Views           #
 ####################################
+
 
 def employee_check(user):
     return user.profile.status.status == 'employee'
@@ -638,6 +639,24 @@ def checkout(request):
 
 
 @login_required
+def get_user_data_for_checkout(request):
+    user = request.user.profile
+    output = {
+        'billing': {
+            'first_name': user.first_name,
+            'last_name': user.last_name,
+            'company': user.company,
+            'city': user.city,
+            'state': user.state_code,
+            'zip_code': user.zip_code,
+            'email': user.email,
+            'birthday': user.birthday.strftime('%m/%d/%Y')
+        }
+    }
+    return JsonResponse(output)
+
+
+@login_required
 def cart_verification(request):
     context = {
         'site_key': settings.RECAPTCHA_SITE_KEY,
@@ -707,6 +726,7 @@ def upsert_order(request):
     if request.user.is_authenticated:
         contact = request.user.profile
         order.contact = contact
+    order.save()
     # make OrderItemQuantity's for each product
     cart = data['cart']
     print('Items in cart:')
@@ -717,10 +737,10 @@ def upsert_order(request):
         new_item_quantity = OrderItemQuantity(
             quantity=quantity, product=product, order=order)
         product.SKU_Prices_Inventory_current_inventory -= quantity
+        product.save()
         new_item_quantity.save()
         order.sub_total += product.SKU_Prices_price * quantity
-    order.total = order.order_modal_data.sub_total * \
-        (1 + (order.order_modal_data.tax / 100)) + \
-        order.order_modal_data.shipping + order.order_modal_data.handling
+    order.total = order.sub_total * \
+        (1 + (order.tax / 100)) + order.shipping + order.handling
     order.save()
     return HttpResponse('Order Complete')
