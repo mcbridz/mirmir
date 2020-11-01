@@ -590,6 +590,7 @@ def order_details(request, order_num):
 ##########################################################
 
 
+@login_required
 def shop(request):
     products = Product.objects.filter(is_display_on_website=True)
     print(products)
@@ -599,6 +600,7 @@ def shop(request):
     return render(request, 'mirmir_app/shop.html', context)
 
 
+@login_required
 def shop_get_product_data(request):
     products = Product.objects.filter(is_display_on_website=True)
     data = []
@@ -615,7 +617,7 @@ def shop_get_product_data(request):
             'description': product.description,
             'teaser': product.description_teaser,
             'date_added': product.date_added,
-            'cost': product.SKU_cost_of_good,
+            'cost': product.SKU_Prices_price,
             'photos': photos,
             'wine_properties': {
                 'size': product.WineProperties_bottle_size_in_ml,
@@ -627,6 +629,7 @@ def shop_get_product_data(request):
     return JsonResponse({'product_data': data})
 
 
+@login_required
 def checkout(request):
     context = {
         'site_key': settings.RECAPTCHA_SITE_KEY,
@@ -634,6 +637,7 @@ def checkout(request):
     return render(request, 'mirmir_app/checkout.html', context)
 
 
+@login_required
 def cart_verification(request):
     context = {
         'site_key': settings.RECAPTCHA_SITE_KEY,
@@ -641,6 +645,7 @@ def cart_verification(request):
     return render(request, 'mirmir_app/cart_verification.html', context)
 
 
+@login_required
 def upsert_order(request):
     data = json.loads(request.body)
     print(data)
@@ -702,7 +707,6 @@ def upsert_order(request):
     if request.user.is_authenticated:
         contact = request.user.profile
         order.contact = contact
-    order.save()
     # make OrderItemQuantity's for each product
     cart = data['cart']
     print('Items in cart:')
@@ -712,5 +716,11 @@ def upsert_order(request):
         quantity = item['num']
         new_item_quantity = OrderItemQuantity(
             quantity=quantity, product=product, order=order)
+        product.SKU_Prices_Inventory_current_inventory -= quantity
         new_item_quantity.save()
+        order.sub_total += product.SKU_Prices_price * quantity
+    order.total = order.order_modal_data.sub_total * \
+        (1 + (order.order_modal_data.tax / 100)) + \
+        order.order_modal_data.shipping + order.order_modal_data.handling
+    order.save()
     return HttpResponse('Order Complete')
