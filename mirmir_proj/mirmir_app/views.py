@@ -31,6 +31,36 @@ def employee_check(user):
 
 
 @user_passes_test(employee_check)
+def send_email(request):
+    data = json.loads(request.body)
+    print(data)
+    status_id = data['email_select_by_status']
+    contacts = Contact.objects.filter(status=status_id)
+    email_addresses = []
+    for contact in contacts:
+        email_addresses.append(contact.email)
+    email_text = data['email_text']
+    body = render_to_string(
+        'mirmir_app/employee_email.html', {'email_text': email_text})
+    send_mail('News From Mirmir', '', settings.EMAIL_HOST_USER,
+              email_addresses, fail_silently=False, html_message=body)
+    return JsonResponse({'blank_text': ''})
+
+
+@user_passes_test(employee_check)
+def send_customer_email(request):
+    data = json.loads(request.body)
+    print(data)
+    email_address = data['email_address']
+    email_text = data['email_text']
+    body = render_to_string(
+        'mirmir_app/employee_email.html', {'email_text': email_text})
+    send_mail('News About Your Order', '', settings.EMAIL_HOST_USER,
+              [email_address], fail_silently=False, html_message=body)
+    return JsonResponse({'blank_text': ''})
+
+
+@user_passes_test(employee_check)
 def save_photo(request):
     data = request.POST
     print(data)
@@ -428,10 +458,24 @@ def about(request):
 
 
 def club(request):
-    context = {
+    if request.method == 'GET':
+        context = {
 
-    }
-    return render(request, 'mirmir_app/club.html', context)
+        }
+        if request.user.is_authenticated:
+            context['is_club_member'] = (
+                request.user.profile.status.status == 'club_member')
+        print(context)
+        return render(request, 'mirmir_app/club.html', context)
+    else:
+        if not request.user.is_authenticated:
+            return HttpResponseRedirect(reverse('mirmir_app:login'))
+        profile = request.user.profile
+        print(request.POST)
+        if 'opt_in' in request.POST:
+            profile.status = StatusField.objects.get(status='club_member')
+            profile.save()
+        return HttpResponseRedirect(reverse('mirmir_app:profile'))
 
 
 def archive(request):
@@ -594,6 +638,7 @@ def profile(request):
         num_items = []
         context = {
             'form': form,
+            'status': request.user.profile.status.pretty_status,
             'site_key': settings.RECAPTCHA_SITE_KEY,
             'confirmed': False
         }

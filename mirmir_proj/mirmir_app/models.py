@@ -10,7 +10,7 @@ class StatusField(models.Model):
     pretty_status = models.CharField(max_length=50, null=True, blank=True)
 
     def __str__(self):
-        return self.pretty_status
+        return self.pretty_status + str(self.id)
 
 
 class SortField(models.Model):

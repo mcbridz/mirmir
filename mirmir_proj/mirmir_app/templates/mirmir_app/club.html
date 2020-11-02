@@ -4,6 +4,21 @@
 {%endblock%}
 {%block body%}
 <h1>This is the Mead Club Page</h1>
+<h4>Here is where implementation of some kind of charging system to make the club a recurring service charge.</h4>
+<h5>That being said, this is the opt-in for club demonstration.</h5>
+<div class="container">
+    <form action="{% url 'mirmir_app:club' %}" method="POST">
+        <div class="form-check">
+            {% csrf_token %}
+            <input type="checkbox" id="opt_in" class="form-check-input" {% if is_club_member %} checked {% endif %}
+                name="opt_in">
+            <label for="opt_in" class="form-check-label">Opt-In To Club Membership</label>
+        </div>
+        <button class="btn btn-primary" type="submit">Submit</button>
+    </form>
+</div>
 
+{%endblock%}
+{%block javascript %}
 
 {%endblock%}

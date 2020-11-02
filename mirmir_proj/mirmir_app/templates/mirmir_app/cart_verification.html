@@ -432,8 +432,6 @@
                     }).then((response) => {
                         console.log(response.data)
                         sessionStorage.setItem('cart', JSON.stringify([]))
-                        sessionStorage.setItem('form_data', JSON.stringify([]))
-                        sessionStorage.setItem('is_gift', JSON.stringify([]))
                         window.location.href = "{% url 'mirmir_app:profile' %}"
                     })
                 },

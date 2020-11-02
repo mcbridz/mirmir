@@ -35,6 +35,12 @@
         display: none;
     }
 
+    #email_sent_toast {
+        position: absolute;
+        bottom: 50%;
+        left: 50%;
+    }
+
     @media only screen and (max-width: 550px) {
         #desktop_table {
             display: none;
@@ -72,6 +78,32 @@
 
     <!-- Active Products Tab -->
     {% include 'mirmir_app/products_tab.html' %}
+
+
+    <!-- Send Emails Tab -->
+    <div class="container" v-show="selected == 'send_emails'">
+        <label for="email_select_by_status">Status:</label>
+        <select v-model="email.email_select_by_status" id="email.email_select_by_status" class="form-control">
+            <option value="1">Subscriber</option>
+            <option value="3">Club Member</option>
+            <option value="2">Purchaser</option>
+        </select>
+        <textarea class="form-control" name="email_text" id="email_text" rows="10"
+            v-model="email.email_text"></textarea>
+        <div class="form-check">
+            <input type="checkbox" class="form-check-input" id="send_product_teaser"
+                v-model="email.send_product_teaser">
+            <label for="send_product_teaser" class="form-check-label">Send Product Teasers?</label>
+        </div>
+        <h5>Work more on product teasers later</h5>
+        <div class="toast" id="email_sent_toast">
+            <div class="toast-body">
+                Email Sent
+            </div>
+        </div>
+        <a @click="sendMail" class="btn btn-primary">Send Email</a>
+    </div>
+
 
 </div>
 
@@ -171,12 +203,40 @@
                 product_photos: [],
                 product_selected: '',
             },
+            email: {
+                email_select_by_status: 1,
+                email_text: '',
+                customer_email_address: '',
+            },
             selected: 'open_orders',
             type_of_update: '',
             new_photos: false,
             photo_remove_instructions: []
         },
         methods: {
+            //////////////////////////////////////////////////////
+            //                  Email Methods                   //
+            //////////////////////////////////////////////////////
+
+            sendMail: function () {
+                axios({
+                    url: '{% url "mirmir_app:send_email" %}',
+                    method: 'POST',
+                    headers: {
+                        'X-CSRFToken': '{{ csrf_token }}',
+                    },
+                    data: {
+                        email_select_by_status: this.email.email_select_by_status,
+                        email_text: this.email.email_text,
+                    }
+                }).then(response => {
+                    console.log(response.data)
+                    $('#email_sent_toast').toast({ delay: 2000 })
+                    $('#email_sent_toast').toast('show')
+                    this.email.email_text = ''
+                })
+            },
+
             //////////////////////////////////////////////////////
             //                Product Methods                   //
             //////////////////////////////////////////////////////
@@ -300,6 +360,24 @@
             //////////////////////////////////////////////////////
             //                Order Methods                     //
             //////////////////////////////////////////////////////
+            sendOrderEmail: function () {
+                axios({
+                    url: '{% url "mirmir_app:send_customer_email" %}',
+                    method: 'POST',
+                    headers: {
+                        'X-CSRFToken': '{{ csrf_token }}',
+                    },
+                    data: {
+                        email_address: this.email.customer_email_address,
+                        email_text: this.email.email_text,
+                    }
+                }).then(response => {
+                    console.log(response.data)
+                    $('#email_sent_toast').toast({ delay: 2000 })
+                    $('#email_sent_toast').toast('show')
+                    this.email.email_text = ''
+                })
+            },
             getNextOrderNumberEmployee: function () {
                 axios({
                     url: '{% url "mirmir_app:get_next_order_number_employee" %}',

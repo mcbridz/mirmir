@@ -400,6 +400,7 @@
             methods: {
                 calculateTotal: function () {
                     console.log('calculating total')
+                    console.log(this.cart)
                     let total = 0
                     let num_items = 0
                     for (i = 0; i < this.cart.length; ++i) {
@@ -411,12 +412,12 @@
                     sessionStorage.setItem('cart', JSON.stringify(this.cart))
                 },
                 removeItemFromCart: function (i) {
-                    console.log('removing item from cart with index of ' + i)
+                    // console.log('removing item from cart with index of ' + i)
                     let num_removed = this.cart[i].num
                     this.num_items -= num_removed
                     this.cart.splice(i, 1)
                     this.calculateTotal()
-                    console.log('exiting removeItemFromCart on session_cart vue')
+                    // console.log('exiting removeItemFromCart on session_cart vue')
                 },
                 addToCart: function (item) {
                     console.log('started addToCart from session_cart vue')
@@ -425,7 +426,7 @@
                             console.log('item found in cart, adding 1 to num')
                             this.cart[i].num += 1
                             this.calculateTotal()
-                            console.log(this.cart)
+                            // console.log(this.cart)
                             return
                         }
                     }
@@ -433,7 +434,7 @@
                     item.num = 1
                     this.cart.push(item)
                     this.calculateTotal()
-                    console.log(this.cart)
+                    // console.log(this.cart)
                 },
             },
             created: function () {

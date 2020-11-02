@@ -260,9 +260,37 @@
                     </form>
                 </div>
                 <div class="modal-footer">
+                    <button @click="email.customer_email_address = order_modal_data.billing_email" type="button"
+                        class="btn btn-success" data-dismiss="modal" data-toggle="modal" data-target="#email_modal">Send
+                        Email To Customer</button>
                     <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
                     <button type="button" class="btn btn-primary" @click="saveOrderChanges" data-dismiss="modal">Save
                         changes</button>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="modal fade" id="email_modal" tabindex="-1" role="dialog" aria-labelledby="modalLabel"
+        aria-hidden="true">
+        <div class="modal-dialog" role="document">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="modalLabel">Email [[email.customer_email_address]]</h5>
+                    <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                        <span aria-hidden="true">&times;</span>
+                    </button>
+                </div>
+                <div class="modal-body">
+                    <form>
+                        <textarea class="form-control" name="email_text" id="email_text" rows="10"
+                            v-model="email.email_text"></textarea>
+                    </form>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" @click="email.email_text = ''"
+                        data-dismiss="modal">Close</button>
+                    <button type="button" class="btn btn-primary" @click="sendOrderEmail" data-dismiss="modal">Send
+                        Email</button>
                 </div>
             </div>
         </div>

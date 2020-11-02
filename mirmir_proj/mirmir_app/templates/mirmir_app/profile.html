@@ -26,7 +26,7 @@
         </div>
     </div>
     {% endif %}
-    <h1 id="header">Profile</h1>
+    <h1 id="header">{{ status }} - Profile</h1>
     <h2>Order History</h2>
     <div class="container">
         <table class="table">
@@ -58,6 +58,10 @@
     <input type="hidden" id="recaptcha" name="g-recaptcha-response">
     {% csrf_token %}
     {{ form|crispy }}
+    {% if status != 'Club Member' %}
+    <input type="checkbox" id="opt_in" class="form-check-input" value='{{is_club_member}}' name="opt_in">
+    <label for="opt_in" class="form-check-label">Opt-In To Newsletter</label>
+    {% endif %}
     <button type="submit" id="submit_btn" class="btn btn-primary g-recaptcha" data-sitekey="reCAPTCHA_site_key"
         data-callback='onSubmit'>Update Profile</button>
 
