@@ -298,7 +298,6 @@
             <a class="nav-link" href="{% url 'mirmir_app:shop' %}">Shop</a>
             <a class="nav-link" href="{% url 'mirmir_app:about' %}">About Mirmir's Well Meadery</a>
             <a class="nav-link" href="{% url 'mirmir_app:club' %}">Mead Club</a>
-            <a class="nav-link" href="{% url 'mirmir_app:archive' %}">Archive</a>
         </div>
 
 
@@ -404,8 +403,8 @@
                     let total = 0
                     let num_items = 0
                     for (i = 0; i < this.cart.length; ++i) {
-                        total += (this.cart[i].num * this.cart[i].cost)
-                        num_items += this.cart[i].num
+                        total += (parseInt(this.cart[i].num) * parseInt(this.cart[i].cost))
+                        num_items += parseInt(this.cart[i].num)
                     }
                     this.num_items = num_items
                     this.total = total

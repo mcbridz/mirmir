@@ -7,7 +7,7 @@ class ContactForm(ModelForm):
     class Meta:
         model = Contact
         # fields = '__all__'
-        exclude = ['username', 'status']
+        exclude = ['username', 'status', 'email_address_confirmed']
         widgets = {
             'birthday': TextInput(attrs={'type': 'date'})
         }

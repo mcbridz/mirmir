@@ -56,12 +56,16 @@
     </div>
     <h2>Profile Data</h2>
     <input type="hidden" id="recaptcha" name="g-recaptcha-response">
+    {% if status != 'Club Member' %}
+    <div class="container">
+        <input type="checkbox" id="opt_in" class="form-check-input" name="opt_in" {% if status == 'Subscriber'%} checked
+            {% endif %}>
+        <label for="opt_in" class="form-check-label">Opt-In To Newsletter</label>
+    </div>
+    {% endif %}
     {% csrf_token %}
     {{ form|crispy }}
-    {% if status != 'Club Member' %}
-    <input type="checkbox" id="opt_in" class="form-check-input" value='{{is_club_member}}' name="opt_in">
-    <label for="opt_in" class="form-check-label">Opt-In To Newsletter</label>
-    {% endif %}
+
     <button type="submit" id="submit_btn" class="btn btn-primary g-recaptcha" data-sitekey="reCAPTCHA_site_key"
         data-callback='onSubmit'>Update Profile</button>
 

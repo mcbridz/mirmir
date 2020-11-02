@@ -434,7 +434,11 @@ def index(request):
 
 
 def main(request):
+    print(request.user)
+    if request.user.username == 'admin':
+        return HttpResponseRedirect(reverse('mirmir_app:logout'))
     if request.user.is_authenticated:
+        print(request.user.profile.status)
         if request.user.profile.status.status == 'employee':
             return HttpResponseRedirect(reverse('mirmir_app:employee_main'))
     meads = Product.objects.filter(is_display_on_website=True)
@@ -474,7 +478,9 @@ def club(request):
         print(request.POST)
         if 'opt_in' in request.POST:
             profile.status = StatusField.objects.get(status='club_member')
-            profile.save()
+        else:
+            profile.status = StatusField.objects.get(status='purchaser')
+        profile.save()
         return HttpResponseRedirect(reverse('mirmir_app:profile'))
 
 
@@ -572,7 +578,8 @@ def register(request):
             birthday=data['birthday']
         )
         new_contact.save()
-        email_confirmation = EmailConfirmation(user=user, code=random_code(10))
+        email_confirmation = EmailConfirmation(
+            contact=new_contact, code=random_code(10))
         email_confirmation.save()
         body = render_to_string('mirmir_app/email.html', {
                                 'code': email_confirmation.code, 'domain': 'http://' + request.META['HTTP_HOST']})
@@ -674,6 +681,19 @@ def profile(request):
                            instance=request.user.profile)
         if form.is_valid():
             form.save()
+        print(request.POST)
+        profile = request.user.profile
+        if 'opt_in' in request.POST:
+            print('found opt-in')
+            profile.status = StatusField.objects.get(
+                status='subscriber')
+        else:
+            print('no opt-in')
+            if profile.status.status == 'subscriber':
+                print('user is subscriber')
+                profile.status = StatusField.objects.get(
+                    status='purchaser')
+        profile.save()
         return HttpResponseRedirect(reverse('mirmir_app:main'))
 
 
@@ -719,6 +739,7 @@ def shop_get_product_data(request):
             'description': product.description,
             'teaser': product.description_teaser,
             'date_added': product.date_added,
+            'in_stock': (product.SKU_Prices_Inventory_current_inventory > 0),
             'cost': product.SKU_Prices_price,
             'photos': photos,
             'wine_properties': {
@@ -829,12 +850,14 @@ def upsert_order(request):
         order.contact = contact
     order.save()
     # make OrderItemQuantity's for each product
+    num_items = 0
     cart = data['cart']
     print('Items in cart:')
     for item in cart:
         print(item['title'])
         product = Product.objects.get(id=item['id'])
-        quantity = item['num']
+        quantity = int(item['num'])
+        num_items += quantity
         new_item_quantity = OrderItemQuantity(
             quantity=quantity, product=product, order=order)
         product.SKU_Prices_Inventory_current_inventory -= quantity
@@ -846,5 +869,25 @@ def upsert_order(request):
     order.total = order.sub_total * \
         (1 + (order.tax / 100)) + order.shipping + order.handling
     order.save()
+    # send email receipt
+    email_order = {
+        'billing_email': order.billing_email,
+        'billing_first_name': order.billing_first_name,
+        'billing_last_name': order.billing_last_name,
+        'order_number': order.order_number,
+        'order_date': order.order_date.strftime('%m/%d/%Y'),
+        'shipping_first_name': order.shipping_first_name,
+        'shipping_last_name ': order.shipping_last_name,
+        'shipping_address': order.shipping_address,
+        'shipping_address2': order.shipping_address2,
+        'shipping_city': order.shipping_city,
+        'shipping_state': order.shipping_state_code,
+        'total': order.total,
+    }
+    num_items
+    body = render_to_string(
+        'mirmir_app/email_receipt.html', {'order': email_order, 'num_items': num_items})
+    send_mail('Order Receipt ' + str(order.order_number), '', settings.EMAIL_HOST_USER,
+              [order.billing_email], fail_silently=False, html_message=body)
     print('Order total: ' + str(order.total))
     return HttpResponse('Order Complete')

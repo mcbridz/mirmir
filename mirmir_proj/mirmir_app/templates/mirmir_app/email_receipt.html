@@ -1,0 +1,46 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <!-- font-awesome -->
+    <link rel="stylesheet" href="https://use.fontawesome.com/releases/v5.15.1/css/all.css"
+        integrity="sha384-vp86vTRFVJgpjF9jiIGPEEqYqlDwgyBgEF109VFjmqGmIY/Y4HV4d3Gp2irVfcrp" crossorigin="anonymous">
+    <!-- Required meta tags -->
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+
+
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Receipt</title>
+</head>
+
+<body>
+    <div class="container">
+        <h3>Receipt for {{order.billing_first_name}} {{order.billing_last_name}}, order number: {{order.order_number}}
+        </h3>
+        <table class="table">
+            <thead>
+                <th scope="col">#</th>
+                <th scope="col">Date</th>
+                <th scope="col">Name</th>
+                <th scope="col">Address</th>
+                <th scope="col">Num Items</th>
+                <th scope="col">Total</th>
+            </thead>
+            <tbody>
+                <tr>
+                    <th scope="row">{{order.order_number}}</th>
+                    <td>{{order.order_date}}</td>
+                    <td>{{order.shipping_first_name}} {{order.shipping_last_name}}</td>
+                    <td>{{order.shipping_address}} {{order.shipping_address2}}, {{order.shipping_city}}
+                        {{order.shipping_state}}</td>
+                    <td>{{num_items}}</td>
+                    <td>${{order.total|floatformat:2}}</td>
+                </tr>
+            </tbody>
+        </table>
+    </div>
+</body>
+
+</html>

@@ -87,11 +87,13 @@
                 <div class="container product_teaser">[[product.teaser]]</div>
                 <button type="button" data-toggle="modal" :data-target="'#p_modal' + product.id"
                     class="btn btn-primary">Product Details</button>
-                <a class="btn btn-success toast-trigger" @click="addToCart(index)" :id="index">Add
+                <a v-show="product.in_stock" class="btn btn-success toast-trigger" @click="addToCart(index)"
+                    :id="index">Add
                     To
                     Cart
-                    ($[[product.cost]])
+                    ($[[product.cost.toFixed(2)]])
                 </a>
+                <button v-show="!product.in_stock" class="btn btn-danger" disabled>Out Of Stock</button>
             </div>
 
 
