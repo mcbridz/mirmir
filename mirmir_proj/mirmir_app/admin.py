@@ -1,5 +1,5 @@
 from django.contrib import admin
-from .models import Contact, StatusField, SortField, Product, CarouselSlide, MainPageWarning, MainPageHighlight, ShippingStatus, OrderType, OrderItemQuantity, TransactionType, PaymentStatus, Order, ProductPhoto
+from .models import Contact, StatusField, SortField, Product, CarouselSlide, MainPageWarning, MainPageHighlight, ShippingStatus, OrderType, OrderItemQuantity, TransactionType, PaymentStatus, Order, ProductPhoto, EmailConfirmation
 
 admin.site.register(Contact)
 admin.site.register(StatusField)
@@ -15,3 +15,4 @@ admin.site.register(OrderItemQuantity)
 admin.site.register(TransactionType)
 admin.site.register(PaymentStatus)
 admin.site.register(Order)
+admin.site.register(EmailConfirmation)

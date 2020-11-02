@@ -10,7 +10,22 @@
 </style>
 {%endblock%}
 {%block body%}
-<form class="container" id="form_input" action="#!" method="post">
+<form class="container" id="form_input" action="" method="post">
+    {% if not confirmed %}
+    <div role="alert" aria-live="assertive" aria-atomic="true" class="toast show" data-autohide="false">
+        <div class="toast-header">
+            <img class="rounded mr-2">
+            <strong class="mr-auto">Email Verification</strong>
+            <button type="button" class="ml-2 mb-1 close" data-dismiss="toast" aria-label="Close">
+                <span aria-hidden="true">&times;</span>
+            </button>
+        </div>
+        <div class="toast-body">
+            Verify your email address to purchase products. <a href="{% url 'mirmir_app:send_new_code' %}">Click Here
+                For New Code</a>
+        </div>
+    </div>
+    {% endif %}
     <h1 id="header">Profile</h1>
     <h2>Order History</h2>
     <div class="container">
@@ -50,8 +65,10 @@
 
 {%endblock%}
 {%block javascript %}
+
 <script src="https://www.google.com/recaptcha/api.js?render={{site_key}}"></script>
 <script>
+    $('.toast').toast(option)
     grecaptcha.ready(function () {
         // 4
         $('#form_input').submit(function (e) {

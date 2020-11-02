@@ -40,15 +40,16 @@ class Contact(models.Model):
     def __str__(self):
         return self.last_name + ', ' + self.first_name
 
-    class EmailConfirmation(models.Model):
-        user = models.ForeignKey(
-            User, on_delete=models.PROTECT, related_name='email_confirmations')
-        code = models.CharField(max_length=10)
-        date_created = models.DateTimeField(auto_now_add=True)
-        date_confirmed = models.DateTimeField(null=True, blank=True)
 
-        def __str__(self):
-            return self.user.username + ' ' + self.code
+class EmailConfirmation(models.Model):
+    contact = models.ForeignKey(
+        Contact, on_delete=models.PROTECT, related_name='email_confirmations')
+    code = models.CharField(max_length=10)
+    date_created = models.DateTimeField(auto_now_add=True)
+    date_confirmed = models.DateTimeField(null=True, blank=True)
+
+    def __str__(self):
+        return self.contact.username.username + ' ' + self.code
 
 ###############################################
 #               Product Models                #

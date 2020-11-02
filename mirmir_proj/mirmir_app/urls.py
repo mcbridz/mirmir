@@ -45,5 +45,8 @@ urlpatterns = [
          name='get_active_products'),
     path('save_product_changes/', views.save_product_changes,
          name='save_product_changes'),
-    path('save_photo/', views.save_photo, name='save_photo')
+    path('save_photo/', views.save_photo, name='save_photo'),
+    path('send_new_code/', views.send_new_code, name='send_new_code'),
+    path('confirm/', views.confirm, name='confirm'),
+    path('email_sent/', views.email_sent, name='email_sent'),
 ]

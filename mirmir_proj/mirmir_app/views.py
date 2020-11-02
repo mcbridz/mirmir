@@ -7,7 +7,9 @@ from django.conf import settings
 from django.contrib.auth.models import User
 from django.contrib import auth
 from django.core import serializers
-from .models import StatusField, SortField, Contact, Product, CarouselSlide, MainPageWarning, MainPageHighlight, Order, OrderType, PaymentStatus, OrderItemQuantity, ShippingStatus, ProductPhoto, TransactionType
+from django.core.mail import send_mail
+from django.template.loader import render_to_string
+from .models import StatusField, SortField, Contact, Product, CarouselSlide, MainPageWarning, MainPageHighlight, Order, OrderType, PaymentStatus, OrderItemQuantity, ShippingStatus, ProductPhoto, TransactionType, EmailConfirmation
 import requests
 import random
 import django.contrib.auth
@@ -16,6 +18,7 @@ from .forms import ContactForm
 from . import utilities
 import json
 import re
+import string
 from datetime import datetime
 
 ####################################
@@ -389,6 +392,10 @@ def save_new_highlight(request):
 ####################################
 
 
+def verified_account(user):
+    return user.profile.email_address_confirmed
+
+
 def index(request):
     context = {
         'message': 'Hello, world!',
@@ -432,6 +439,47 @@ def archive(request):
 
     }
     return render(request, 'mirmir_app/archive.html', context)
+
+
+def random_code(n):
+    return ''.join([random.choice(string.ascii_letters + string.digits) for _ in range(n)])
+
+
+@login_required
+def email_sent(request):
+    return render(request, 'mirmir_app/email_sent.html')
+
+
+@login_required
+def send_new_code(request):
+    # verification = request.user.profile.email_confirmations.objects.all()
+    # print(verification)
+    # if verification is not None:
+    #     verification.delete()
+    email_confirmation = EmailConfirmation(
+        contact=request.user.profile, code=random_code(10))
+    email_confirmation.save()
+    body = render_to_string('mirmir_app/email.html', {
+        'code': email_confirmation.code, 'domain': 'http://' + request.META['HTTP_HOST']})
+    send_mail('Confirm Your Account', '', settings.EMAIL_HOST_USER, [
+        request.user.profile.email], fail_silently=False, html_message=body)
+    return HttpResponseRedirect(reverse('mirmir_app:email_sent'))
+
+
+@login_required
+def confirm(request):
+    code = request.GET.get('code', '')
+    if code == '':
+        return render(request, 'mirmir_app/profile.html', {})
+    email_confirmation = EmailConfirmation.objects.get(code=code)
+    print(email_confirmation)
+    if email_confirmation is not None:
+        email_confirmation.date_confirmed = timezone.now()
+        email_confirmation.save()
+        contact = email_confirmation.contact
+        contact.email_address_confirmed = True
+        contact.save()
+    return HttpResponseRedirect(reverse('mirmir_app:profile'))
 
 
 def register(request):
@@ -480,9 +528,15 @@ def register(request):
             birthday=data['birthday']
         )
         new_contact.save()
+        email_confirmation = EmailConfirmation(user=user, code=random_code(10))
+        email_confirmation.save()
+        body = render_to_string('mirmir_app/email.html', {
+                                'code': email_confirmation.code, 'domain': 'http://' + request.META['HTTP_HOST']})
+        send_mail('Confirm Your Account', '', settings.EMAIL_HOST_USER, [
+                  new_contact.email], fail_silently=False, html_message=body)
         django.contrib.auth.login(request, user)
         # django.contrib.auth.login(request, user)
-        next = request.GET.get('next', reverse('mirmir_app:main'))
+        next = request.GET.get('next', reverse('mirmir_app:profile'))
         return HttpResponseRedirect(next)
 
 
@@ -541,9 +595,11 @@ def profile(request):
         context = {
             'form': form,
             'site_key': settings.RECAPTCHA_SITE_KEY,
+            'confirmed': False
         }
-
-        # only if user has order history
+        if request.user.profile.email_address_confirmed:
+            context['confirmed'] = True
+            # only if user has order history
         if orders:
             for order in orders:
                 item_quantities = order.items.all()
@@ -630,7 +686,7 @@ def shop_get_product_data(request):
     return JsonResponse({'product_data': data})
 
 
-@login_required
+@user_passes_test(verified_account)
 def checkout(request):
     context = {
         'site_key': settings.RECAPTCHA_SITE_KEY,
@@ -638,7 +694,7 @@ def checkout(request):
     return render(request, 'mirmir_app/checkout.html', context)
 
 
-@login_required
+@user_passes_test(verified_account)
 def get_user_data_for_checkout(request):
     user = request.user.profile
     output = {
@@ -656,7 +712,7 @@ def get_user_data_for_checkout(request):
     return JsonResponse(output)
 
 
-@login_required
+@user_passes_test(verified_account)
 def cart_verification(request):
     context = {
         'site_key': settings.RECAPTCHA_SITE_KEY,
@@ -664,7 +720,7 @@ def cart_verification(request):
     return render(request, 'mirmir_app/cart_verification.html', context)
 
 
-@login_required
+@user_passes_test(verified_account)
 def upsert_order(request):
     data = json.loads(request.body)
     print(data)
@@ -739,8 +795,11 @@ def upsert_order(request):
         product.SKU_Prices_Inventory_current_inventory -= quantity
         product.save()
         new_item_quantity.save()
-        order.sub_total += product.SKU_Prices_price * quantity
+        print('Product Quantity: ' + str(quantity))
+        print('Product Price: ' + str(product.SKU_Prices_price))
+        print('Current sub total: ' + str(order.sub_total))
     order.total = order.sub_total * \
         (1 + (order.tax / 100)) + order.shipping + order.handling
     order.save()
+    print('Order total: ' + str(order.total))
     return HttpResponse('Order Complete')
