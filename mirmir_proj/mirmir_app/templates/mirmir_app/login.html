@@ -5,6 +5,11 @@
 {%block body%}
 <div class="container" id="div_body">
     <h3>User Login</h3>
+    {% if there_is_a_message %}
+    <div class="alert alert-danger" role="alert">
+        {{message}}
+    </div>
+    {% endif %}
     <form id="form_input" action="{% url 'mirmir_app:login' %}" method="POST">
         {% csrf_token %}
         <input type="text" placeholder="username" name="username" required>

@@ -259,7 +259,7 @@ def justify_carousel_ordering():
 
 @user_passes_test(employee_check)
 def get_open_orders(request):
-    #data = serializers.serialize('xml', SomeModel.objects.all(), fields=('name','size'))
+    # data = serializers.serialize('xml', SomeModel.objects.all(), fields=('name','size'))
     data = Order.get_open_orders()
     return JsonResponse({'data': data})
 
@@ -601,6 +601,7 @@ def login(request):
     if request.method == 'GET':
         context = {
             'site_key': settings.RECAPTCHA_SITE_KEY,
+            'is_there_a_message': False,
         }
         return render(request, 'mirmir_app/login.html', context)
     else:
@@ -614,16 +615,29 @@ def login(request):
         result_json = resp.json()
         print(result_json)
         ################################################
-        # need captcha logic
+        # captcha logic
+        if not result_json['success']:
+            context = {
+                'site_key': settings.RECAPTCHA_SITE_KEY,
+                'there_is_a_message': True,
+                'message': 'reCAPTCHA v3 unsuccessful'
+            }
+            return render(request, 'mirmir_app/login.html', context)
+
         ################################################
         # user login logic here
         username = request.POST['username']
         password = request.POST['password']
         user = django.contrib.auth.authenticate(
             request, username=username, password=password)
-        print(user.profile.status)
+        # print(user.profile.status)
         if user is None:
-            message = 'not_found'
+            context = {
+                'site_key': settings.RECAPTCHA_SITE_KEY,
+                'there_is_a_message': True,
+                'message': 'Incorrect username or password, please try again or reset your password.'
+            }
+            return render(request, 'mirmir_app/login.html', context)
         elif user.profile.status.status == 'employee':
             context = {
 
@@ -632,9 +646,49 @@ def login(request):
             next = request.GET.get('next', reverse('mirmir_app:employee_main'))
             return HttpResponseRedirect(next)
         else:
+            ###########################################
+            # captcha logic
+            # test score <=5
+            # result_json['score'] = 0.1
+            if result_json['score'] <= 0.5:
+                context = {
+                    'site_key': settings.RECAPTCHA_SITE_KEY,
+                    'there_is_a_message': True,
+                    'message': 'Are you a robot? Please check your registered email for link.'
+                }
+                email_address = [user.profile.email]
+                email_confirmation = EmailConfirmation(
+                    contact=user.profile, code=random_code(10))
+                email_confirmation.save()
+                body = render_to_string('mirmir_app/two_fa.html', {
+                    'code': email_confirmation.code, 'domain': 'http://' + request.META['HTTP_HOST']})
+                send_mail('Confirm Your Account', '', settings.EMAIL_HOST_USER,
+                          email_address, fail_silently=False, html_message=body)
+                return render(request, 'mirmir_app/login.html', context)
+            #########################################
+            # All tests passed, login user and go on
             django.contrib.auth.login(request, user)
             next = request.GET.get('next', reverse('mirmir_app:main'))
             return HttpResponseRedirect(next)
+
+
+def confirm_login(request):
+    code = request.GET.get('code', '')
+    if code == '':
+        context = {
+            'site_key': settings.RECAPTCHA_SITE_KEY,
+            'there_is_a_message': True,
+            'message': 'Incorrect code, please try to login again.'
+        }
+        return render(request, 'mirmir_app/login.html', context)
+    email_confirmation = EmailConfirmation.objects.get(code=code)
+    # print(email_confirmation)
+    if email_confirmation is not None:
+        email_confirmation.date_confirmed = timezone.now()
+        email_confirmation.save()
+        contact = email_confirmation.contact
+        django.contrib.auth.login(request, contact.username)
+    return HttpResponseRedirect(reverse('mirmir_app:profile'))
 
 
 @login_required

@@ -1,0 +1,16 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Home</title>
+</head>
+
+<body>
+    <h1>Confirm Your Account</h1>
+    <p>Click the link below to confirm your account login:</p>
+    <p><a href="{{domain}}{% url 'mirmir_app:confirm_login' %}?code={{code}}">confirm</a></p>
+</body>
+
+</html>
