@@ -416,7 +416,7 @@
                     sessionStorage.setItem('cart', JSON.stringify(this.cart))
                 },
                 submitOrder: function () {
-                    console.log(JSON.stringify(this.data))
+                    console.log(JSON.stringify(this.order))
                     axios({
                         url: '{% url "mirmir_app:upsert_order" %}',
                         method: 'POST',

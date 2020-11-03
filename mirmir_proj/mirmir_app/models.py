@@ -24,7 +24,7 @@ class SortField(models.Model):
 class Contact(models.Model):
     first_name = models.CharField(max_length=50)
     last_name = models.CharField(max_length=50)
-    company = models.CharField(max_length=255, blank=True, null=True)
+    company = models.CharField(max_length=255, blank=True)
     city = models.CharField(max_length=50, blank=True, null=True)
     state_code = models.CharField(max_length=50, blank=True, null=True)
     zip_code = models.CharField(max_length=50, blank=True, null=True)
@@ -304,8 +304,7 @@ class Order(models.Model):
     billing_birthdate = models.DateField(blank=True)
     billing_first_name = models.CharField(max_length=50)
     billing_last_name = models.CharField(max_length=50)
-    billing_company = models.CharField(
-        max_length=100, default='Mirmir\'s Well Meadery')
+    billing_company = models.CharField(max_length=100, blank=True)
     billing_address = models.CharField(max_length=100)
     billing_address2 = models.CharField(max_length=100, blank=True)
     billing_city = models.CharField(max_length=50)

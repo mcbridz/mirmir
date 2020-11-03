@@ -763,6 +763,7 @@ def checkout(request):
 @user_passes_test(verified_account)
 def get_user_data_for_checkout(request):
     user = request.user.profile
+    print('company ' + user.company)
     output = {
         'billing': {
             'first_name': user.first_name,
@@ -848,6 +849,8 @@ def upsert_order(request):
     if request.user.is_authenticated:
         contact = request.user.profile
         order.contact = contact
+    print('order_shipping_company: ' + order.shipping_company)
+    print('order_billing_company' + order.billing_company)
     order.save()
     # make OrderItemQuantity's for each product
     num_items = 0
