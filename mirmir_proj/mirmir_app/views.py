@@ -532,12 +532,142 @@ def confirm(request):
     return HttpResponseRedirect(reverse('mirmir_app:profile'))
 
 
+def reset_password_request(request):
+    if request.method == 'GET':
+        context = {
+            'is_there_a_message': False,
+            'site_key': settings.RECAPTCHA_SITE_KEY,
+        }
+        return render(request, 'mirmir_app/reset_password_request.html', context)
+    else:
+        print(request.POST)
+        secret_key = settings.RECAPTCHA_SECRET_KEY
+        data = {
+            'response': request.POST['g-recaptcha-response'],
+            'secret': secret_key,
+        }
+        resp = requests.post(
+            'https://www.google.com/recaptcha/api/siteverify', data=data)
+        result_json = resp.json()
+        print(result_json)
+        if not result_json['success']:
+            context = {
+                'site_key': settings.RECAPTCHA_SITE_KEY,
+                'there_is_a_message': True,
+                'message': 'reCAPTCHA v3 unsuccessful'
+            }
+            return render(request, 'mirmir_app/reset_password_request.html', context)
+        if result_json['score'] > 0.5:
+            account = None
+            if request.POST['username'] != '':
+                account = Contact.objects.filter(
+                    username__username=request.POST['username']).first()
+            elif request.POST['email'] != '' and account is not None:
+                account = Contact.objects.filter(
+                    email=request.POST['email']).first()
+            if account:
+                email_address = [account.email]
+                email_confirmation = EmailConfirmation(
+                    contact=account, code=random_code(10))
+                email_confirmation.save()
+                body = render_to_string('mirmir_app/email_password_reset.html', {
+                    'code': email_confirmation.code, 'domain': 'http://' + request.META['HTTP_HOST']})
+                send_mail('Change Password Link', '', settings.EMAIL_HOST_USER,
+                          email_address, fail_silently=False, html_message=body)
+                context = {
+                    'site_key': settings.RECAPTCHA_SITE_KEY,
+                    'there_is_a_message': True,
+                    'message': 'Email Sent Successfully'
+                }
+                return render(request, 'mirmir_app/reset_password_request.html', context)
+            else:
+                context = {
+                    'site_key': settings.RECAPTCHA_SITE_KEY,
+                    'there_is_a_message': True,
+                    'message': 'Account Not Found'
+                }
+                return render(request, 'mirmir_app/reset_password_request.html', context)
+
+
+def change_password(request):
+    if request.method == 'GET':
+        code = request.GET.get('code', '')
+        if code == '':
+            return render(request, 'mirmir_app/profile.html', {})
+        email_confirmation = EmailConfirmation.objects.get(code=code)
+        print(email_confirmation)
+        if email_confirmation is not None:
+            email_confirmation.date_confirmed = timezone.now()
+            email_confirmation.save()
+            context = {
+                'code': code,
+                'site_key': settings.RECAPTCHA_SITE_KEY,
+                'is_there_a_message': False,
+            }
+            return render(request, 'mirmir_app/change_password.html', context)
+        else:
+            return HttpResponseRedirect(reverse('mirmir_app:reset_password_request'))
+    else:
+        print(request.POST)
+        secret_key = settings.RECAPTCHA_SECRET_KEY
+        data = {
+            'response': request.POST['g-recaptcha-response'],
+            'secret': secret_key,
+        }
+        resp = requests.post(
+            'https://www.google.com/recaptcha/api/siteverify', data=data)
+        result_json = resp.json()
+        print(result_json)
+        ################################################
+        # need captcha logic
+        code = request.POST['code']
+        if not result_json['success']:
+            context = {
+                'code': code,
+                'site_key': settings.RECAPTCHA_SITE_KEY,
+                'there_is_a_message': True,
+                'message': 'reCAPTCHA v3 unsuccessful'
+            }
+            return render(request, 'mirmir_app/change_password.html', context)
+        if result_json['score'] > 0.5:
+            ################################################
+            # user login logic here
+            password = request.POST['password']
+            password_v = request.POST['password_v']
+            if password != password_v:
+                context = {
+                    'code': code,
+                    'site_key': settings.RECAPTCHA_SITE_KEY,
+                    'there_is_a_message': True,
+                    'message': 'Passwords do not match, please try again.'
+                }
+                return render(request, 'mirmir_app/change_password.html', context)
+            else:
+                email_confirmation = EmailConfirmation.objects.filter(
+                    code=code).first()
+                if email_confirmation is not None:
+                    user = email_confirmation.contact.username
+                    user.set_password(password)
+                    user.save()
+                    django.contrib.auth.login(request, user)
+                    return HttpResponseRedirect(reverse('mirmir_app:profile'))
+                else:
+                    context = {
+                        'code': code,
+                        'site_key': settings.RECAPTCHA_SITE_KEY,
+                        'there_is_a_message': True,
+                        'message': 'A database error occurred, contact an administrator.'
+                    }
+                    return render(request, 'mirmir_app/change_password.html', context)
+
+
 def register(request):
     if request.method == 'GET':
         form = ContactForm()
         context = {
             'form': form,
             'site_key': settings.RECAPTCHA_SITE_KEY,
+            'is_there_a_message': False,
         }
         return render(request, 'mirmir_app/register.html', context)
     else:
@@ -553,42 +683,62 @@ def register(request):
         print(result_json)
         ################################################
         # need captcha logic
-        ################################################
-        # user login logic here
-        password = request.POST['password']
-        password_v = request.POST['password_v']
-        if password != password_v:
-            message = 'passwords do not match'
-        username = request.POST['username']
-        if User.objects.filter(username=username).exists():
-            message = 'user already exists'
-        user = User.objects.create_user(
-            username, request.POST['email'], password)
-        data = request.POST
-        new_contact = Contact(
-            username=user,
-            first_name=data['first_name'],
-            last_name=data['last_name'],
-            company=data['company'],
-            city=data['city'],
-            state_code=data['state_code'],
-            zip_code=data['zip_code'],
-            main_phone=data['main_phone'],
-            email=data['email'],
-            birthday=data['birthday']
-        )
-        new_contact.save()
-        email_confirmation = EmailConfirmation(
-            contact=new_contact, code=random_code(10))
-        email_confirmation.save()
-        body = render_to_string('mirmir_app/email.html', {
-                                'code': email_confirmation.code, 'domain': 'http://' + request.META['HTTP_HOST']})
-        send_mail('Confirm Your Account', '', settings.EMAIL_HOST_USER, [
-                  new_contact.email], fail_silently=False, html_message=body)
-        django.contrib.auth.login(request, user)
-        # django.contrib.auth.login(request, user)
-        next = request.GET.get('next', reverse('mirmir_app:profile'))
-        return HttpResponseRedirect(next)
+        if not result_json['success']:
+            context = {
+                'site_key': settings.RECAPTCHA_SITE_KEY,
+                'there_is_a_message': True,
+                'message': 'reCAPTCHA v3 unsuccessful'
+            }
+            return render(request, 'mirmir_app/register.html', context)
+        if result_json['score'] > 0.5:
+            ################################################
+            # user login logic here
+            password = request.POST['password']
+            password_v = request.POST['password_v']
+            if password != password_v:
+                context = {
+                    'site_key': settings.RECAPTCHA_SITE_KEY,
+                    'there_is_a_message': True,
+                    'message': 'Passwords do not match, please try again.'
+                }
+                return render(request, 'mirmir_app/register.html', context)
+            username = request.POST['username']
+            if User.objects.filter(username=username).exists():
+                message = 'user already exists'
+            user = User.objects.create_user(
+                username, request.POST['email'], password)
+            data = request.POST
+            new_contact = Contact(
+                username=user,
+                first_name=data['first_name'],
+                last_name=data['last_name'],
+                company=data['company'],
+                city=data['city'],
+                state_code=data['state_code'],
+                zip_code=data['zip_code'],
+                main_phone=data['main_phone'],
+                email=data['email'],
+                birthday=data['birthday']
+            )
+            new_contact.save()
+            email_confirmation = EmailConfirmation(
+                contact=new_contact, code=random_code(10))
+            email_confirmation.save()
+            body = render_to_string('mirmir_app/email.html', {
+                                    'code': email_confirmation.code, 'domain': 'http://' + request.META['HTTP_HOST']})
+            send_mail('Confirm Your Account', '', settings.EMAIL_HOST_USER, [
+                      new_contact.email], fail_silently=False, html_message=body)
+            django.contrib.auth.login(request, user)
+            # django.contrib.auth.login(request, user)
+            next = request.GET.get('next', reverse('mirmir_app:profile'))
+            return HttpResponseRedirect(next)
+        else:
+            context = {
+                'site_key': settings.RECAPTCHA_SITE_KEY,
+                'there_is_a_message': True,
+                'message': 'reCAPTCHA v3 suspect, please try again.'
+            }
+            return render(request, 'mirmir_app/register.html', context)
 
 
 @login_required
@@ -700,7 +850,6 @@ def profile(request):
         context = {
             'form': form,
             'status': request.user.profile.status.pretty_status,
-            'site_key': settings.RECAPTCHA_SITE_KEY,
             'confirmed': False
         }
         if request.user.profile.email_address_confirmed:
@@ -718,17 +867,6 @@ def profile(request):
 
         return render(request, 'mirmir_app/profile.html', context)
     else:
-        secret_key = settings.RECAPTCHA_SECRET_KEY
-        data = {
-            'response': request.POST['g-recaptcha-response'],
-            'secret': secret_key,
-        }
-        resp = requests.post(
-            'https://www.google.com/recaptcha/api/siteverify', data=data)
-        result_json = resp.json()
-        print(result_json)
-        ################################################
-        # need captcha logic
         ################################################
         # user login logic here
         form = ContactForm(request.POST, request.FILES,

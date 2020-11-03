@@ -53,4 +53,7 @@ urlpatterns = [
     path('send_customer_email/', views.send_customer_email,
          name='send_customer_email'),
     path('confirm_login/', views.confirm_login, name='confirm_login'),
+    path('reset_password_request/', views.reset_password_request,
+         name='reset_password_request'),
+    path('change_password/', views.change_password, name='change_password'),
 ]

@@ -74,23 +74,8 @@
 {%endblock%}
 {%block javascript %}
 
-<script src="https://www.google.com/recaptcha/api.js?render={{site_key}}"></script>
 <script>
     $('.toast').toast(option)
-    grecaptcha.ready(function () {
-        // 4
-        $('#form_input').submit(function (e) {
-            let form = this
-            // 5
-            e.preventDefault()
-            grecaptcha.execute('{{ site_key }}', { action: 'form' }).then(function (token) {
-                console.log(token)
-                // 6
-                $('#recaptcha').val(token)
-                // 7
-                form.submit()
-            })
-        })
-    })
+
 </script>
 {%endblock%}
