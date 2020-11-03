@@ -7,10 +7,26 @@
     #header {
         text-align: center;
     }
+
+    .toast.show {
+        display: block;
+        position: fixed;
+        top: 50%;
+        left: 50%;
+    }
+
+    .toast {
+        display: none;
+    }
 </style>
 {%endblock%}
 {%block body%}
 <form class="container" id="form_input" action="" method="post">
+    <div class="toast" id="warning_toast">
+        <div class="toast-body">
+            Email Sent to {{email}}
+        </div>
+    </div>
     {% if not confirmed %}
     <div role="alert" aria-live="assertive" aria-atomic="true" class="toast show" data-autohide="false">
         <div class="toast-header">
@@ -68,7 +84,7 @@
 
     <button type="submit" id="submit_btn" class="btn btn-primary g-recaptcha" data-sitekey="reCAPTCHA_site_key"
         data-callback='onSubmit'>Update Profile</button>
-
+    <a class="btn btn-success" onclick="sendPasswordResetRequest()">Reset Password</a>
 </form>
 
 {%endblock%}
@@ -76,6 +92,16 @@
 
 <script>
     $('.toast').toast(option)
-
+    function sendPasswordResetRequest() {
+        axios({
+            method: 'GET',
+            url: "{% url 'mirmir_app:logged_in_password_reset' %}"
+        }).then(response => {
+            console.log(response.data)
+            $('#warning_toast').toast({ delay: 2000 })
+            $('#warning_toast').toast('show')
+            console.log('Exiting saveWarning')
+        })
+    }
 </script>
 {%endblock%}

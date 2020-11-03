@@ -532,6 +532,19 @@ def confirm(request):
     return HttpResponseRedirect(reverse('mirmir_app:profile'))
 
 
+@login_required
+def logged_in_password_reset(request):
+    email_address = [request.user.profile.email]
+    email_confirmation = EmailConfirmation(
+        contact=request.user.profile, code=random_code(10))
+    email_confirmation.save()
+    body = render_to_string('mirmir_app/email_password_reset.html', {
+        'code': email_confirmation.code, 'domain': 'http://' + request.META['HTTP_HOST'], 'username': request.user.username})
+    send_mail('Change Password Link', '', settings.EMAIL_HOST_USER,
+              email_address, fail_silently=False, html_message=body)
+    return JsonResponse({'message': 'okay'})
+
+
 def reset_password_request(request):
     if request.method == 'GET':
         context = {
@@ -571,7 +584,7 @@ def reset_password_request(request):
                     contact=account, code=random_code(10))
                 email_confirmation.save()
                 body = render_to_string('mirmir_app/email_password_reset.html', {
-                    'code': email_confirmation.code, 'domain': 'http://' + request.META['HTTP_HOST']})
+                    'code': email_confirmation.code, 'domain': 'http://' + request.META['HTTP_HOST'], 'username': account.username.username})
                 send_mail('Change Password Link', '', settings.EMAIL_HOST_USER,
                           email_address, fail_silently=False, html_message=body)
                 context = {
@@ -645,7 +658,7 @@ def change_password(request):
             else:
                 email_confirmation = EmailConfirmation.objects.filter(
                     code=code).first()
-                if email_confirmation is not None:
+                if email_confirmation is not None and email_confirmation.date_confirmed is not None:
                     user = email_confirmation.contact.username
                     user.set_password(password)
                     user.save()
@@ -850,6 +863,7 @@ def profile(request):
         context = {
             'form': form,
             'status': request.user.profile.status.pretty_status,
+            'email': request.user.profile.email,
             'confirmed': False
         }
         if request.user.profile.email_address_confirmed:
