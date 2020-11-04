@@ -27,7 +27,10 @@ SECRET_KEY = '*i-9i!(!qg3)(b#8feer8ho3umeg483(um0exq#60(oe9s(=z^'
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
 
-ALLOWED_HOSTS = ['mcbridz.pythonanywhere.com']
+ALLOWED_HOSTS = [
+    'mcbridz.pythonanywhere.com',
+    'localhost'
+]
 
 
 # Application definition
