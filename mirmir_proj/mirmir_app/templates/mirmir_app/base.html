@@ -334,7 +334,8 @@
                     <div class="container cart-items" v-for="(item, index) in cart">
                         <span class="cart-text">[% item.title %] ($[%item.cost%])</span>
                         <div class="add-or-remove-group">
-                            <input type="number" min="0" v-model="item.num" @input="calculateTotal()">
+                            <input type="number" min="1" v-model="item.num" :max="item.inventory"
+                                @input="calculateTotal()">
                             <a class="btn btn-danger" @click=removeItemFromCart(index)><i class="fas fa-times"></i></a>
                         </div>
                     </div>

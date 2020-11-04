@@ -953,7 +953,8 @@ def shop_get_product_data(request):
                 'alcohol': product.WineProperties_alcohol,
                 'pairing': product.WineProperties_food_pairing_notes,
                 'tasting': product.WineProperties_tasting_notes
-            }
+            },
+            'inventory': product.SKU_Prices_Inventory_current_inventory
         })
     return JsonResponse({'product_data': data})
 
@@ -1069,6 +1070,9 @@ def upsert_order(request):
         num_items += quantity
         new_item_quantity = OrderItemQuantity(
             quantity=quantity, product=product, order=order)
+        if product.SKU_Prices_Inventory_current_inventory - quantity < 0:
+            order.delete()
+            return HttpResponse('inventory_error')
         product.SKU_Prices_Inventory_current_inventory -= quantity
         product.save()
         new_item_quantity.save()
