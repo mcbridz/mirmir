@@ -317,7 +317,9 @@
             <a class="nav-link" href="{% url 'mirmir_app:club' %}">Mead Club</a>
             <a class="nav-link" href="{% url 'mirmir_app:shop' %}">Shop</a>
             <a class="nav-link" href="{% url 'mirmir_app:about' %}">About Mirmir's Well Meadery</a>
+            {% if not user.is_authenticated %}
             <a class="nav-link" href="{% url 'mirmir_app:login' %}">Login</a>
+            {% endif %}
         </div>
     </nav>
 

@@ -706,6 +706,16 @@ def register(request):
         if result_json['score'] > 0.5:
             ################################################
             # user login logic here
+            username = request.POST['username']
+            if User.objects.filter(username=username).exists():
+                form = ContactForm()
+                context = {
+                    'form': form,
+                    'site_key': settings.RECAPTCHA_SITE_KEY,
+                    'is_there_a_message': True,
+                    'message': 'Username already exists, please choose another username.',
+                }
+                return render(request, 'mirmir_app/register.html', context)
             password = request.POST['password']
             password_v = request.POST['password_v']
             if password != password_v:
@@ -715,9 +725,6 @@ def register(request):
                     'message': 'Passwords do not match, please try again.'
                 }
                 return render(request, 'mirmir_app/register.html', context)
-            username = request.POST['username']
-            if User.objects.filter(username=username).exists():
-                message = 'user already exists'
             user = User.objects.create_user(
                 username, request.POST['email'], password)
             data = request.POST
