@@ -1,0 +1,6 @@
+display itemQuantities with orders in 'open_orders_tab'
+
+
+to reset pythonanywhere server:
+git reset --hard
+git fetch/pull

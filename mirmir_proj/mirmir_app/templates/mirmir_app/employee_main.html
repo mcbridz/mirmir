@@ -362,28 +362,6 @@
             //////////////////////////////////////////////////////
             //                Order Methods                     //
             //////////////////////////////////////////////////////
-            updateQuantity: function (index, order_index) {
-                order_item_quantity_id = this.open_orders[order_index].items[index].id
-                console.log('product quantity id')
-                console.log(order_item_quantity_id)
-                console.log(this.open_orders[order_index].items[index])
-                axios({
-                    url: '{% url "mirmir_app:update_order_item_quantity" %}',
-                    method: 'POST',
-                    headers: {
-                        'X-CSRFToken': '{{ csrf_token }}'
-                    },
-                    data: {
-                        'id': order_item_quantity_id,
-                        'quantity': this.order_modal_data.items[index].quantity,
-                    }
-                }).then(response => {
-                    console.log(response.data)
-                    this.open_orders = response.data.open_orders
-                    this.active_products_in_tab = response.active_products
-                    this.$forceUpdate()
-                })
-            },
             sendOrderEmail: function () {
                 axios({
                     url: '{% url "mirmir_app:send_customer_email" %}',
