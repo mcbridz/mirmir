@@ -425,7 +425,7 @@ def save_new_highlight(request):
 
 
 def verified_account(user):
-    return user.profile.email_address_confirmed
+    return user.is_authenticated and user.profile.email_address_confirmed
 
 
 def index(request):

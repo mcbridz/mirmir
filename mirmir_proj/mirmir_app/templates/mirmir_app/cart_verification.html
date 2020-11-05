@@ -6,6 +6,7 @@
 
     <!-- Vue -->
     <script src="https://cdn.jsdelivr.net/npm/vue/dist/vue.js"></script>
+
     <!-- Axios -->
     <script src="https://cdnjs.cloudflare.com/ajax/libs/axios/0.20.0/axios.min.js"
         integrity="sha512-quHCp3WbBNkwLfYUMd+KwBAgpVukJu5MncuQaWXgCrfgcxCJAq/fo+oqrRKOj+UKEmyMCG3tb8RB63W+EmrOBg=="
@@ -33,14 +34,20 @@
         integrity="sha384-B4gt1jrGC7Jh4AgTPSdUtOBvfO8shuf57BaghqFfPlYxofvL8/KUEfYiJOMMV+rV"
         crossorigin="anonymous"></script>
 
-
-    <script src="https://www.google.com/recaptcha/api.js?render={{site_key}}"></script>
-
     <!-- font awesome -->
     <script src="https://kit.fontawesome.com/fce573833e.js" crossorigin="anonymous"></script>
 
-    <title>Mirmir: Checkout</title>
+    <title>{%block title%}{%endblock%}</title>
     <style>
+        #body {
+            background-image: linear-gradient(rgba(0, 0, 0, 0.3), rgba(0, 0, 0, 0.3)),
+            url("{% static 'mirmir_app/background.jpg' %}");
+            background-color: rgba(202, 197, 132, 0.4);
+            background-size: cover;
+            background-repeat: no-repeat;
+            background-attachment: fixed;
+        }
+
         html,
         body {
             height: 100%;
@@ -55,6 +62,8 @@
             justify-content: center;
             /* bottom: 0; */
             width: 100%;
+            background-color: rgba(202, 197, 132, 0.5);
+            border-radius: 7px;
         }
 
         #nav_bottom>span {
@@ -63,11 +72,16 @@
 
         #nav_container {
             flex-direction: column;
+            background-image: url("{% static 'mirmir_app/banner.jpg' %}");
+            background-color: rgba(0, 0, 0, 0);
+            background-size: cover;
+            background-repeat: no-repeat;
+            padding: 2rem 1rem;
+            margin-bottom: 1.2rem;
         }
 
-        #sub_links {
-            display: flex;
-            justify-content: space-between;
+        #container_bottom_nav {
+            margin-top: 15px;
         }
 
         #customer {
@@ -76,6 +90,8 @@
             top: 1%;
             display: flex;
             flex-direction: row;
+            align-items: center;
+            padding-left: 40px;
         }
 
         .c-nav {
@@ -173,6 +189,9 @@
             justify-content: space-between;
         }
 
+        .cart-text {
+            color: #f1f1f1;
+        }
 
         #checkout-group {
             display: flex;
@@ -184,11 +203,10 @@
             text-align: center;
         }
 
-        .cart-items-group {
+        .cart-group {
             display: flex;
-            flex-direction: row;
+            flex-direction: column;
             width: 90%;
-            justify-content: space-between;
             align-items: center;
         }
 
@@ -210,9 +228,12 @@
             margin-bottom: 20px;
         }
 
-        #bottom_buttons {
+        #desk_nav {
             display: flex;
-            justify-content: space-between;
+            flex-direction: row;
+            background-color: rgba(248, 249, 250, 0.5);
+            border-radius: 3px;
+            margin-top: 0.5rem;
         }
 
         /* Style page content - use this if you want to push the page content to the right when you open the side navigation */
@@ -250,13 +271,47 @@
             text-align: center;
         }
 
-        @media only screen and (max-width: 768px) {
-            #hamburger {
+        #mobile_cart_icon {
+            display: none;
+        }
+
+        #acct_cart {
+            position: absolute;
+            width: 380px;
+            right: 2%;
+            display: inline;
+            height: 70px;
+            padding: 0;
+            top: 0%;
+            z-index: 0;
+            background-color: rgba(248, 249, 250, 0.5);
+            border-radius: 3px;
+        }
+
+        #cart_app {
+            height: 0;
+        }
+
+        #logo {
+            max-height: 75px;
+        }
+
+        @media only screen and (max-width: 1000px) {
+
+            #desk_nav,
+            #acct_cart {
                 display: none;
             }
 
             #mobile_hamburger {
                 display: flex;
+            }
+
+            #mobile_cart_icon {
+                display: inline;
+                position: absolute;
+                right: 2%;
+                z-index: 2;
             }
         }
 
@@ -270,73 +325,49 @@
         .toast {
             display: none;
         }
+
+        #cart {
+            background-color: rgba(202, 197, 132, 0.7);
+            padding-bottom: 5px;
+            border-radius: 7px;
+        }
     </style>
+    {% block style %}
+    {%endblock%}
 </head>
 
-<body class="d-flex flex-column min-vh-100">
-    <nav class="navbar navbar-expand-lg navbar-light bg-light">
-        <div id="nav_container" class="container">
-            <div class="row">
-                <a class="navbar-brand" href="{% url 'mirmir_app:main' %}">Mirmir's Well Meadery</a>
-            </div>
-            <div class="row" id="logo">
-                <img src="http://placekitten.com/80/80" alt="">
-            </div>
-            <div class="row">
-
-                <!-- desktop nav -->
-                <button class="navbar-toggler" id="hamburger" type="button" data-toggle="collapse"
-                    data-target="#hamburger" aria-controls="hamburger" aria-expanded="false"
-                    aria-label="Toggle navigation">
-                    <span class="navbar-toggler-icon"></span>
-                </button>
-                <div class="collapse navbar-collapse" id="desk_nav">
-                    <div class="navbar-nav mr-auto" id="sub_links">
-                        <a class="nav-link" href="{% url 'mirmir_app:shop' %}">Shop</a>
-                        <a class="nav-link" href="{% url 'mirmir_app:about' %}">About Mirmir's Well Meadery</a>
-                        <a class="nav-link" href="{% url 'mirmir_app:club' %}">Mead Club</a>
-                        <a class="nav-link" href="{% url 'mirmir_app:archive' %}">Archive</a>
-                    </div>
-                </div>
-            </div>
-            <div class="collapse navbar-collapse" id="acct_cart">
-                <span class="nav-item" id="customer">
-                    {% if user.is_authenticated %}
-                    <a disabled class="nav-link c-nav">Welcome, {{user.username}}</a>
-                    <a href="{% url 'mirmir_app:profile' %}" class="nav-link c-nav">Your Account</a>
-                    {% endif %}
-                    {% if user.is_authenticated %}
-                    <a class="btn nav-link" href="{% url 'mirmir_app:logout' %}" tabindex="-1" aria-disabled="true">Log
-                        Out</a>
-                    {% else %}
-                    <a id="desktop_username" class="nav-link" data-toggle="tooltip" title="Log In Here!"
-                        href="{% url 'mirmir_app:login' %}" tabindex="-1" aria-disabled="true">Welcome,
-                        Guest!</a>
-                    {% endif %}
-                </span>
-            </div>
+<body class="d-flex flex-column min-vh-100" id="body">
+    <a class="nav-link c-nav" id="mobile_cart_icon" onclick="openCart()"><i class="fas fa-shopping-cart fa-3x"></i></a>
+    <nav id="nav_container" class="navbar navbar-light">
+        <a class="navbar-brand" href="{% url 'mirmir_app:main' %}">Mirmir's Well Meadery</a>
+        <img id="logo" src="{% static 'mirmir_app/viking_logo.jpg' %}" alt="">
+        <!-- desktop nav -->
+        <div class="navbar navbar-light" id="desk_nav">
+            <a class="nav-link" href="{% url 'mirmir_app:shop' %}">Shop</a>
+            <a class="nav-link" href="{% url 'mirmir_app:about' %}">About Mirmir's Well Meadery</a>
+            <a class="nav-link" href="{% url 'mirmir_app:club' %}">Mead Club</a>
+        </div>
 
 
-            <!-- mobile nav -->
-            <span id="mobile_hamburger" onclick="openNav()"><i class="fas fa-bars"></i></span>
-            <div class="sidenav" id="mobile_nav">
-                <a href="javascript:void(0)" class="closebtn" onclick="closeNav()">&times;</a>
-                {% if user.is_authenticated %}
-                <a class="nav-link" href="{% url 'mirmir_app:logout' %}" tabindex="-1" aria-disabled="true">Log
-                    Out</a>
-                {% else %}
-                <a id="mobile_username" class="nav-link" href="{% url 'mirmir_app:login' %}" tabindex="-1"
-                    aria-disabled="true">Welcome,
-                    Guest!</a>
-                {% endif %}
-                <a href="" class="nav-link c-nav">Your Account</a>
-                <a class="nav-link" href="{% url 'mirmir_app:club' %}">Mead Club</a>
-                <a class="nav-link" href="{% url 'mirmir_app:archive' %}">Archive</a>
-                <a class="nav-link" href="{% url 'mirmir_app:about' %}">About Mirmir's Well Meadery</a>
-                <a href="" class="nav-link c-nav" onclick="closeNav(); openCart();"><i
-                        class="fas fa-shopping-cart"></i></a>
-                <a class="nav-link" href="{% url 'mirmir_app:login' %}">Login</a>
-            </div>
+
+        <!-- mobile nav -->
+        <span id="mobile_hamburger" onclick="openNav()"><i class="fas fa-bars"></i></span>
+        <div class="sidenav" id="mobile_nav">
+            <a href="javascript:void(0)" class="closebtn" onclick="closeNav()">&times;</a>
+            {% if user.is_authenticated %}
+            <a class="nav-link" href="{% url 'mirmir_app:logout' %}" tabindex="-1" aria-disabled="true">Log
+                Out</a>
+            {% else %}
+            <a id="mobile_username" class="nav-link" tabindex="-1" aria-disabled="true" disabled>Welcome,
+                Guest!</a>
+            {% endif %}
+            <a href="" class="nav-link c-nav">Your Account</a>
+            <a class="nav-link" href="{% url 'mirmir_app:club' %}">Mead Club</a>
+            <a class="nav-link" href="{% url 'mirmir_app:shop' %}">Shop</a>
+            <a class="nav-link" href="{% url 'mirmir_app:about' %}">About Mirmir's Well Meadery</a>
+            {% if not user.is_authenticated %}
+            <a class="nav-link" href="{% url 'mirmir_app:login' %}">Login</a>
+            {% endif %}
         </div>
     </nav>
 
@@ -377,20 +408,22 @@
                 ($[[total]])</button>
         </div>
     </div>
-    <nav id="nav_bottom" class="navbar navbar-light bg-light mt-auto">
-        <span class="nav-item">
-            <a href="#!"><img class="social_media" src="{% static 'mirmir_app/facebook.png' %}" alt=""></a>
-        </span>
-        <span class="nav-item">
-            <a href="#!"><img class="social_media" src="{% static 'mirmir_app/gmail.png' %}" alt=""></a>
-        </span>
-        <span class="nav-item">
-            <a href="#!"><img class="social_media" src="{% static 'mirmir_app/instagram.png' %}" alt=""></a>
-        </span>
-        <span class="nav-item">
-            <a href="#!"><img class="social_media" src="{% static 'mirmir_app/twitter.png' %}" alt=""></a>
-        </span>
-    </nav>
+    <div class="container" id="container_bottom_nav">
+        <nav id="nav_bottom" class="navbar mt-auto">
+            <span class="nav-item">
+                <a href="#!"><img class="social_media" src="{% static 'mirmir_app/facebook.png' %}" alt=""></a>
+            </span>
+            <span class="nav-item">
+                <a href="#!"><img class="social_media" src="{% static 'mirmir_app/gmail.png' %}" alt=""></a>
+            </span>
+            <span class="nav-item">
+                <a href="#!"><img class="social_media" src="{% static 'mirmir_app/instagram.png' %}" alt=""></a>
+            </span>
+            <span class="nav-item">
+                <a href="#!"><img class="social_media" src="{% static 'mirmir_app/twitter.png' %}" alt=""></a>
+            </span>
+        </nav>
+    </div>
     <script>
         let cart = new Vue({
             el: '#cart',
