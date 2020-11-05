@@ -1,12 +1,19 @@
 {%extends 'mirmir_app/base.html'%}
 {%block title%}Mirmir: Mead Club{%endblock%}
 {%block style%}
+<style>
+    #container_club {
+        background-color: rgba(202, 197, 132, 0.7);
+        padding-bottom: 5px;
+        border-radius: 7px;
+    }
+</style>
 {%endblock%}
 {%block body%}
-<h1>This is the Mead Club Page</h1>
-<h4>Here is where implementation of some kind of charging system to make the club a recurring service charge.</h4>
-<h5>That being said, this is the opt-in for club demonstration.</h5>
-<div class="container">
+<div class="container" id="container_club">
+    <h1>This is the Mead Club Page</h1>
+    <h4>Here is where implementation of some kind of charging system to make the club a recurring service charge.</h4>
+    <h5>That being said, this is the opt-in for club demonstration.</h5>
     <form action="{% url 'mirmir_app:club' %}" method="POST">
         <div class="form-check">
             {% csrf_token %}

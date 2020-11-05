@@ -39,6 +39,15 @@
 
     <title>{%block title%}{%endblock%}</title>
     <style>
+        #body {
+            background-image: linear-gradient(rgba(0, 0, 0, 0.3), rgba(0, 0, 0, 0.3)),
+            url("{% static 'mirmir_app/background.jpg' %}");
+            background-color: rgba(202, 197, 132, 0.4);
+            background-size: cover;
+            background-repeat: no-repeat;
+            background-attachment: fixed;
+        }
+
         html,
         body {
             height: 100%;
@@ -53,6 +62,8 @@
             justify-content: center;
             /* bottom: 0; */
             width: 100%;
+            background-color: rgba(202, 197, 132, 0.5);
+            border-radius: 7px;
         }
 
         #nav_bottom>span {
@@ -61,6 +72,16 @@
 
         #nav_container {
             flex-direction: column;
+            background-image: url("{% static 'mirmir_app/banner.jpg' %}");
+            background-color: rgba(0, 0, 0, 0);
+            background-size: cover;
+            background-repeat: no-repeat;
+            padding: 2rem 1rem;
+            margin-bottom: 1.2rem;
+        }
+
+        #container_bottom_nav {
+            margin-top: 15px;
         }
 
         #customer {
@@ -70,6 +91,7 @@
             display: flex;
             flex-direction: row;
             align-items: center;
+            padding-left: 40px;
         }
 
         .c-nav {
@@ -209,6 +231,9 @@
         #desk_nav {
             display: flex;
             flex-direction: row;
+            background-color: rgba(248, 249, 250, 0.5);
+            border-radius: 3px;
+            margin-top: 0.5rem;
         }
 
         /* Style page content - use this if you want to push the page content to the right when you open the side navigation */
@@ -252,20 +277,26 @@
 
         #acct_cart {
             position: absolute;
-            width: 300px;
+            width: 380px;
             right: 2%;
             display: inline;
             height: 70px;
             padding: 0;
             top: 0%;
             z-index: 0;
+            background-color: rgba(248, 249, 250, 0.5);
+            border-radius: 3px;
         }
 
         #cart_app {
             height: 0;
         }
 
-        @media only screen and (max-width: 850px) {
+        #logo {
+            max-height: 75px;
+        }
+
+        @media only screen and (max-width: 1000px) {
 
             #desk_nav,
             #acct_cart {
@@ -288,13 +319,13 @@
     {%endblock%}
 </head>
 
-<body class="d-flex flex-column min-vh-100">
+<body class="d-flex flex-column min-vh-100" id="body">
     <a class="nav-link c-nav" id="mobile_cart_icon" onclick="openCart()"><i class="fas fa-shopping-cart fa-3x"></i></a>
-    <nav id="nav_container" class="navbar navbar-light bg-light">
+    <nav id="nav_container" class="navbar navbar-light">
         <a class="navbar-brand" href="{% url 'mirmir_app:main' %}">Mirmir's Well Meadery</a>
-        <img id="logo" src="http://placekitten.com/80/80" alt="">
+        <img id="logo" src="{% static 'mirmir_app/viking_logo.jpg' %}" alt="">
         <!-- desktop nav -->
-        <div class="navbar navbar-light bg-light" id="desk_nav">
+        <div class="navbar navbar-light" id="desk_nav">
             <a class="nav-link" href="{% url 'mirmir_app:shop' %}">Shop</a>
             <a class="nav-link" href="{% url 'mirmir_app:about' %}">About Mirmir's Well Meadery</a>
             <a class="nav-link" href="{% url 'mirmir_app:club' %}">Mead Club</a>
@@ -330,7 +361,8 @@
                 <a href="javascript:void(0)" class="closebtn" onclick="closeCart()">&times;</a>
             </div>
             <div>
-                <div class="container" v-show="cart.length == 0"><span class="cart-text">No Items In Cart</span></div>
+                <div class="container" v-show="cart.length == 0"><span class="cart-text">No Items In Cart</span>
+                </div>
 
                 <div class="cart-group" v-show="cart.length">
                     <div class="container cart-items" v-for="(item, index) in cart">
@@ -350,7 +382,7 @@
             </div>
 
         </div>
-        <div class="navbar navbar-light bg-light" id="acct_cart">
+        <div class="navbar navbar-light" id="acct_cart">
             <span class="nav-item" id="customer">
                 <span v-show="num_items != 0">[%num_items%]</span>
                 <a class="nav-link c-nav" onclick="openCart()"><i class="fas fa-shopping-cart fa-3x"></i></a>
@@ -371,20 +403,22 @@
     </div>
     {%block body%}
     {%endblock%}
-    <nav id="nav_bottom" class="navbar navbar-light bg-light mt-auto">
-        <span class="nav-item">
-            <a href="#!"><img class="social_media" src="{% static 'mirmir_app/facebook.png' %}" alt=""></a>
-        </span>
-        <span class="nav-item">
-            <a href="#!"><img class="social_media" src="{% static 'mirmir_app/gmail.png' %}" alt=""></a>
-        </span>
-        <span class="nav-item">
-            <a href="#!"><img class="social_media" src="{% static 'mirmir_app/instagram.png' %}" alt=""></a>
-        </span>
-        <span class="nav-item">
-            <a href="#!"><img class="social_media" src="{% static 'mirmir_app/twitter.png' %}" alt=""></a>
-        </span>
-    </nav>
+    <div class="container" id="container_bottom_nav">
+        <nav id="nav_bottom" class="navbar mt-auto">
+            <span class="nav-item">
+                <a href="#!"><img class="social_media" src="{% static 'mirmir_app/facebook.png' %}" alt=""></a>
+            </span>
+            <span class="nav-item">
+                <a href="#!"><img class="social_media" src="{% static 'mirmir_app/gmail.png' %}" alt=""></a>
+            </span>
+            <span class="nav-item">
+                <a href="#!"><img class="social_media" src="{% static 'mirmir_app/instagram.png' %}" alt=""></a>
+            </span>
+            <span class="nav-item">
+                <a href="#!"><img class="social_media" src="{% static 'mirmir_app/twitter.png' %}" alt=""></a>
+            </span>
+        </nav>
+    </div>
 
 
     <script>
