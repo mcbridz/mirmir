@@ -1,5 +1,5 @@
 # [Mirmir's Well Meadery](http://mcbridz.pythonanywhere.com/)
-Web Application Development For Mirmir's Well Meadery 
+Web Application Development For Mirmir's Well Meadery
 
 ### Frameworks Used:
 
