@@ -1113,3 +1113,7 @@ def upsert_order(request):
               [order.billing_email], fail_silently=False, html_message=body)
     print('Order total: ' + str(order.total))
     return HttpResponse('Order Complete')
+
+
+def handler500(request):
+    return render(request, 'mirmir_app/500.html', status=500)
