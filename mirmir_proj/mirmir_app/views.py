@@ -176,6 +176,37 @@ def get_next_order_number_employee(request):
 
 
 @user_passes_test(employee_check)
+def update_order_item_quantity(request):
+    update = json.loads(request.body)
+    quantity = int(update['quantity'])
+    print(update)
+    print(update['id'])
+    item_quantity = OrderItemQuantity.objects.get(id=update['id'])
+    old_quantity = item_quantity.quantity
+    item_quantity.quantity = quantity
+    item_quantity.save()
+    print('old quantity: ' + str(old_quantity) +
+          ', new quantity: ' + str(item_quantity.quantity))
+    order = item_quantity.order
+    items = order.items.all()
+    order.sub_total = 0
+    for item in items:
+        order.sub_total += item.quantity*item.product.SKU_Prices_price
+    order.total = order.sub_total * \
+        (1 + (order.tax / 100)) + order.shipping + order.handling
+    print('new_order_total: ' + str(order.total))
+
+    order.save()
+    delta = old_quantity - quantity
+    product = item_quantity.product
+    product.SKU_Prices_Inventory_current_inventory += delta
+    product.save()
+    open_orders = Order.get_open_orders()
+    active_products = Product.get_active_products()
+    return JsonResponse({'open_orders': open_orders, 'active_products': active_products})
+
+
+@user_passes_test(employee_check)
 def save_order_changes(request):
     # print(request.body)
     order_update = json.loads(request.body)['order']
@@ -273,7 +304,9 @@ def employee_main(request):
         'order_types': OrderType.get_order_types(),
         'transaction_types': TransactionType.get_transaction_types(),
         'payment_statuses': PaymentStatus.get_payment_statuses(),
+
     }
+
     return render(request, 'mirmir_app/employee_main.html', context)
 
 

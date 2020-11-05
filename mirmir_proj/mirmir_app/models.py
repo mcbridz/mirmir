@@ -394,7 +394,22 @@ class Order(models.Model):
                 "shipping_tracking_number": order.shipping_tracking_number,
                 "payment_status": order.payment_status.id,
                 "shipping_status": order.shipping_status.id,
+                "items": [],
             })
+            items = order.items.all()
+            for item in items:
+                order_output[len(order_output) - 1]['items'].append({
+                    "quantity": item.quantity,
+                    "id": item.id,
+                    "product": {
+                        "id": item.product.id,
+                        "title": item.product.title,
+                        "inventory": item.product.SKU_Prices_Inventory_current_inventory,
+                        "pool": item.product.SKU_Prices_Inventory_inventory_pool,
+                        "cost": item.product.SKU_Prices_price,
+                    },
+                })
+
         return order_output
 
 

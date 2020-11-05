@@ -157,6 +157,15 @@
                             <input type="number" class="form-control" id="shipping_zip_code"
                                 v-model="order_modal_data.shipping_zip_code">
                         </div>
+                        <h5>Products On Order</h5>
+                        <div v-for="(item, index) in order_modal_data.items" class="container">
+                            <h6>[[item.product.title]]</h6>
+                            <label :for="'product_num'+ index">Quantity</label>
+                            <input type="number" class="form-control" :id="'product_num'+ index" v-model="item.quantity"
+                                @input="updateQuantity(index, order_modal_data.order)" min="1"
+                                :max="item.product.inventory">
+                            <a class="btn btn-danger"><i class="fas fa-times"></i></a>
+                        </div>
                         <h5>POS Operations</h5>
                         <div class="form-group">
                             <label for="gift_message">Gift Message</label>
