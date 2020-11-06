@@ -335,7 +335,7 @@
 <body class="d-flex flex-column min-vh-100" id="body">
     <a class="nav-link c-nav" id="mobile_cart_icon" onclick="openCart()"><i class="fas fa-shopping-cart fa-3x"></i></a>
     <nav id="nav_container" class="navbar navbar-light">
-        <img id="logo" src="{% static 'mirmir_app/small_logo.png' %}" alt="">
+        <a href="{% url 'mirmir_app:main' %}"><img id="logo" src="{% static 'mirmir_app/small_logo.png' %}"></a>
         <!-- desktop nav -->
         <div class="navbar navbar-light" id="desk_nav">
             <a class="nav-link" href="{% url 'mirmir_app:shop' %}">Shop</a>
