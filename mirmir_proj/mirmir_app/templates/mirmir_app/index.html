@@ -1,3 +1,4 @@
+{% load static %}
 <!doctype html>
 <html lang="en">
 
@@ -12,8 +13,13 @@
 
     <title>Mirmir's Well Meadery</title>
     <style>
+        body {
+            background-image: url("{% static 'mirmir_app/background.jpg' %}");
+        }
+
         #body_main {
             margin-top: 4rem;
+
         }
 
         #body_main>.row {
@@ -22,6 +28,16 @@
 
         .row>a {
             margin: 5px;
+        }
+
+        img {
+            max-height: 700px;
+        }
+
+        .row>span {
+            background-color: rgba(255, 255, 240, 0.5);
+            border-radius: 7px;
+            margin-bottom: 15px;
         }
 
         @media only screen and (max-width: 1000px) {
@@ -34,8 +50,8 @@
 
 <body>
     <div class="container" id="body_main">
-        <div class="row">Do not continue unless you are 21 years of age or older.</div>
-        <div class="row"><img src="http://placekitten.com/800/600" alt=""></div>
+        <div class="row"><span>Do not continue unless you are 21 years of age or older.</span></div>
+        <div class="row"><img src="{% static 'mirmir_app/large_logo.png' %}" alt=""></div>
         <div class="row">
             <a href="{%url 'mirmir_app:main'%}" class="btn btn-success">Yes, I am 21 or older.</a>
             <a onclick="goBack()" class="btn btn-danger">No, how did I get here! Let me out!</a>

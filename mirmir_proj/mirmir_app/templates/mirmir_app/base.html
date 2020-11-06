@@ -39,6 +39,11 @@
 
     <title>{%block title%}{%endblock%}</title>
     <style>
+        @font-face {
+            font-family: 'Metamorphous-Regular';
+            src: url('Metamorphous-Regular.otf') format('truetype');
+        }
+
         #body {
             background-image: linear-gradient(rgba(0, 0, 0, 0.3), rgba(0, 0, 0, 0.3)),
             url("{% static 'mirmir_app/background.jpg' %}");
@@ -46,6 +51,7 @@
             background-size: cover;
             background-repeat: no-repeat;
             background-attachment: fixed;
+            font-family: 'Metamorphous-Regular';
         }
 
         html,
@@ -62,7 +68,7 @@
             justify-content: center;
             /* bottom: 0; */
             width: 100%;
-            background-color: rgba(202, 197, 132, 0.5);
+            background-color: rgba(255, 255, 240, 0.5);
             border-radius: 7px;
         }
 
@@ -231,9 +237,10 @@
         #desk_nav {
             display: flex;
             flex-direction: row;
-            background-color: rgba(248, 249, 250, 0.5);
+            background-color: rgba(255, 255, 240, 0.5);
             border-radius: 3px;
             margin-top: 0.5rem;
+            font-size: large;
         }
 
         /* Style page content - use this if you want to push the page content to the right when you open the side navigation */
@@ -284,7 +291,7 @@
             padding: 0;
             top: 0%;
             z-index: 0;
-            background-color: rgba(248, 249, 250, 0.5);
+            background-color: rgba(255, 255, 240, 0.5);
             border-radius: 3px;
         }
 
@@ -293,7 +300,7 @@
         }
 
         #logo {
-            max-height: 75px;
+            max-height: 175px;
         }
 
         @media only screen and (max-width: 1000px) {
@@ -322,8 +329,7 @@
 <body class="d-flex flex-column min-vh-100" id="body">
     <a class="nav-link c-nav" id="mobile_cart_icon" onclick="openCart()"><i class="fas fa-shopping-cart fa-3x"></i></a>
     <nav id="nav_container" class="navbar navbar-light">
-        <a class="navbar-brand" href="{% url 'mirmir_app:main' %}">Mirmir's Well Meadery</a>
-        <img id="logo" src="{% static 'mirmir_app/viking_logo.jpg' %}" alt="">
+        <img id="logo" src="{% static 'mirmir_app/small_logo.png' %}" alt="">
         <!-- desktop nav -->
         <div class="navbar navbar-light" id="desk_nav">
             <a class="nav-link" href="{% url 'mirmir_app:shop' %}">Shop</a>
